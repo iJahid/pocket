@@ -1,0 +1,8 @@
+babel-plugin-module-resolver
+react-native-url-polyfill
+@supabase/supabase-js
+expo-secure-store
+@tanstack/react-query
+dayjs
+@react-navigation/material-top-tabs
+@react-native-async-storage/async-storage

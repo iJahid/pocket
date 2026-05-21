@@ -1,0 +1,71 @@
+export type Product = {
+  id: number;
+  image: string | null;
+  name: string;
+  price: number;
+};
+
+export type PizzaSize = 'S' | 'M' | 'L' | 'XL';
+
+
+export const OrderStatusList: OrderStatus[] = [
+  'New',
+  'Cooking',
+  'Processing',
+  'Shipped',
+  'Delivered',
+];
+
+export type OrderStatus = 'New' | 'Cooking' | 'Processing' | 'Shipped' | 'Delivered';
+
+export type Orders = {
+  id: number;
+  created_at: string;
+  order_by: string;
+  order_to: string;
+  status: string;
+  product_id:number;
+  group_id:number;
+  
+};
+
+export type OrderItem = {
+  id: number;
+  product_id: number;
+  products: Product;
+  order_id: number;
+  size: PizzaSize;
+  quantity: number;
+};
+
+export type Profile = {
+  id: string;
+  email:string;
+  name:string;
+  avater:string
+  group: Groups;
+};
+
+export type Groups = {
+  id: string;
+  
+  name:string;
+  owner: string;
+};
+
+export type GroupMembers={
+  group_id:string;
+  user_id:string;
+  role:string;
+};
+
+export type expDataType={
+expdate:string;
+category:string;
+item:string;
+amount:string;
+notes:string;
+expType:string;
+bankID:string;
+isAdd:boolean;
+}
