@@ -11,7 +11,7 @@ import ExpenseForm from './ExpenseForm'
 
 
 
-const ExpenseItem = ({expData}:expDataTypeDB) => {
+const IncomeItem = ({expData}:expDataTypeDB) => {
 
 
 const [date, setDate] = useState<Date>(new Date());
@@ -140,5 +140,5 @@ if(isPending)
   )
 }
 
-export default ExpenseItem
+export default IncomeItem
 

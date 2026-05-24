@@ -64,23 +64,17 @@ export default function TabLayout() {
         name="index"  
         options={{ href:null}} />
         <Tabs.Screen
-        name="expenses" 
+        name="transactions" 
         options={{
-          title:"Money Out",
+          title:"Transactions",
         tabBarIcon:()=>(<Ionicons  name='wallet-outline' size={25} style={{color:'#055757'}}/>),
           
       }}        
         
         />
-        <Tabs.Screen
-        name="incomes" 
-        options={{
-          title:"Money In",
-        tabBarIcon:()=>(<Ionicons  name='wallet' size={25} style={{color:'#055757'}}/>),
-          
-      }}        
-        
-        />
+    
+      
+       
          <Tabs.Screen
         name="bringlist" 
         options={{

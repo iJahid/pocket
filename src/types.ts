@@ -69,3 +69,21 @@ expType:string;
 bankID:string;
 isAdd:boolean;
 }
+
+export type expDataTypeDB{
+  
+ id:number;
+ // $created_at:Date;
+  xndate :Date;
+  category :string;
+  item :string;
+  amount :number | null;
+  notes :string | null;
+  xninout :number;
+  xntype :string;
+  bankid :number;
+  bank_name :string;
+  user_id:string;
+  xn_for:string | 'XP';
+  //isAdd:boolean;
+}

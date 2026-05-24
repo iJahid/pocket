@@ -6,3 +6,5 @@ expo-secure-store
 dayjs
 @react-navigation/material-top-tabs
 @react-native-async-storage/async-storage
+react-native-collapsible
+react-native-element-dropdown

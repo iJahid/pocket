@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/providers/AuthProvider';
-import { GroupMembers } from '@/types';
+import { expDataTypeDB, GroupMembers } from '@/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
 
@@ -383,6 +383,176 @@ export const useDeleteOrder=()=>{
   onError(error:any){
     console.error('Error creating order:', error);
     Alert.alert('Error', 'Failed to create order. Please try again.');
+ }
+ }
+
+
+)
+}
+
+
+
+
+
+/*Transactions Queries*/
+
+export const useCreateTrans=()=>{
+  const queryClient = useQueryClient();
+  
+
+ return   useMutation({
+    async mutationFn(xdata:any){
+
+      console.log('reqest data',xdata)
+        const {data,error}=  await supabase
+           .from('transactions')
+           .insert(xdata).select('*').maybeSingle()
+          
+          console.log('after create',data);
+    return data;
+
+ },
+ async onSuccess(){
+    // Invalidate and refetch
+    console.log('success creating Transaction');
+    await queryClient.invalidateQueries({ queryKey: ['Transactions'] });
+ },
+  onError(error:any){
+    console.error('Error creating Transactions:', error);
+    Alert.alert('Error', 'Failed to create Transaction. Please try again.',error);
+ }
+
+})
+
+}
+
+
+export const useUpdateTrans = () => {
+  
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    async mutationFn({
+      id,
+      updatedFields,
+    }: {
+      id: number;
+      updatedFields: expDataTypeDB | any;
+    }) {
+     // console.log('useUpdate',id, updatedFields)
+      const { error, data: updateTransData } = await supabase
+        .from('transactions')
+        .update(updatedFields)
+        .eq('id', id)
+        .select('*')
+        .single();
+
+      if (error) {
+        Alert.alert(error.message)
+        throw new Error(error.message);
+      }
+      return updateTransData;
+    },
+    async onSuccess(_,{id}) {
+       console.log('success Updated Transaction');
+       await queryClient.invalidateQueries({ queryKey: ['Transactions'] });
+    await queryClient.invalidateQueries({ queryKey: ['Transactions',id] });
+    },
+  });
+};
+
+
+export  function useTransactionList() {
+    const {session}=useAuth();
+    const userId=session?.user.id;
+      const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    const isoToday = today.toISOString();
+     
+  return useQuery({
+    queryKey: ['Transactions'],
+    queryFn: async()=>{
+        if(!userId){
+         return null;
+        }
+       
+ const { data,error } = await supabase
+          .from("transactions")
+          .select('*').eq('user_id',userId)
+          //.or(`created_at.gte.${isoToday}`)
+           .order('created_at', { ascending: false });
+
+
+
+
+        return data;
+    }
+  });
+    
+  
+}
+export  function useTransactionListFor(xnfor:string) {
+    const {session}=useAuth();
+    const userId=session?.user.id;
+      const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    const isoToday = today.toISOString();
+      console.log('xnfor',xnfor)
+  return useQuery({
+    queryKey: ['Transactions',xnfor],
+    queryFn: async()=>{
+        if(!userId){
+         return null;
+        }
+       
+       
+ const { data,error } = await supabase
+          .from("transactions")
+          .select('*')
+          .eq('user_id',userId)
+          .eq('xn_for',xnfor)
+          //.or(`created_at.gte.${isoToday}`)
+           .order('created_at', { ascending: false });
+
+
+
+        if(error)
+        {
+          console.log(error);
+        }
+        return data;
+    }
+  });
+    
+  
+}
+
+
+export const useDeleteTransction=()=>{
+    
+  const queryClient = useQueryClient();
+ return   useMutation({
+
+  
+    async mutationFn(id:number){
+      console.log(' Delete ID',id);
+      await supabase
+      .from('transactions')
+      .delete()
+      .eq('id',id);
+   
+
+    }
+    ,
+ async onSuccess(){
+    // Invalidate and refetch
+    console.log('sucessfully Deleted');
+    await queryClient.invalidateQueries({ queryKey: ['Transactions'] });
+    
+ },
+  onError(error:any){
+    console.error('Error creating order:', error);
+    Alert.alert('Error', 'Failed to Delete order. Please try again.');
  }
  }
 

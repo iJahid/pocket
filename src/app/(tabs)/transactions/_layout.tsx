@@ -6,15 +6,17 @@ export const TopTabs = withLayoutContext(
   createMaterialTopTabNavigator().Navigator
 );
 
-export default function MoneyInTabs() {
+export default function TransactionTabs() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }} edges={['top']}>
-      <Stack.Screen options={{headerTitle:'Incomes'}}/>
+      <Stack.Screen options={{headerTitle:'Transactions'}}/>
       <TopTabs options={{ 
          
       }} >
-        <TopTabs.Screen name="index" options={{ title: 'Incomes' }} />
-        <TopTabs.Screen name="archive" options={{ title: 'Archived' }} />
+        <TopTabs.Screen name="index" options={{ title: 'All' }} />
+        <TopTabs.Screen name="incomes" options={{ title: 'Income' }} />
+        <TopTabs.Screen name="banks" options={{ title: 'Bank' }} />
+        <TopTabs.Screen name="loans" options={{ title: 'Loan' }} />
       </TopTabs>
     </SafeAreaView>
   );

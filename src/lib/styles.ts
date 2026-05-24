@@ -231,13 +231,40 @@ expInput:{
   borderRadius:4,
   height:35,
   padding:1,
-  paddingLeft:5
+  paddingLeft:5,
+  paddingHorizontal: 10
 },
 txnType:{
+  justifyContent:'center',alignItems:'center',
     width:70,
-  borderWidth:1,margin:4,borderColor:'rgb(102, 102, 104)',
-  padding:10,backgroundColor:'rgba(235, 241, 235, 0.86)',borderRadius:7,justifyContent:'center',alignItems:'center'
-}
+    height:50,
+  margin:4,
+  padding:4,
+  backgroundColor:'rgba(235, 241, 235, 0.86)',
+  borderWidth:1,borderColor:'rgb(102, 102, 104)',borderRadius:7,
+},
+  overlay: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    margin: 20,
+    backgroundColor: 'white',
+    padding: 35,
+    borderRadius: 10,
+    position: 'relative', // Ensures button is relative to this view
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    padding: 10,
+  },
+  closeText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
 
 });
 
