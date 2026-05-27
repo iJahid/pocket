@@ -1,8 +1,7 @@
 import { useCreateTrans, useUpdateTrans } from '@/api/orders'
 import { mystyles } from '@/lib/styles'
+import { useAuth } from '@/providers/AuthProvider'
 import { expDataTypeDB } from '@/types'
-import Colors from '@constants/Colors'
-import FontAwesome from '@expo/vector-icons/FontAwesome'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import dayjs from 'dayjs'
@@ -14,27 +13,31 @@ import { Dropdown } from "react-native-element-dropdown"
 
 
 
-const CatgoryList = [
-  { label: 'Bazar' },
-  { label: 'Regular' },
-  { label: 'Nasta' },
-];
+
 
 
 const ItemList = [
-  { label: 'Egg' },
-  { label: 'Bread' },
-  { label: 'Coacacola' },
-  { label: 'Meat' },
+  { label: 'Wallet',value:'wallet' },
+  { label: 'Cash',value:'cash' },
+  { label: 'Bank' ,value:'bank'},
+  { label: 'Opening' ,value:'op'},
+  
 ];
-const ExpenseForm = ({inputdata,isAdd,onClose}) => {
 
+
+
+
+const BankForm = ({inputdata,isAdd,onClose}) => {
+    const {profile}=useAuth();
     const [isChecked, setChecked] = useState(true);
     const [showDatePicker, setShowDatePicker] = useState(false);
 
 
     const [date, setDate] = useState(new Date());
-    const [selectedCategory, setCategory] = useState(null);
+    const [selectedItem, setSelectedItem] = useState("");
+    const [selectedItemLabel, setSelectedItemLabel] = useState("");
+    const [selectedCategory, setCategory] = useState("");
+    const [selectedCategoryLabel, setCategoryLabel] = useState("");
     const [isCollapsed, setIsCollapsed] = useState(true);
     const [xpData,setXpData]=useState<expDataTypeDB>()
 
@@ -79,41 +82,89 @@ const CreateExpenses=async()=>{
                                   
                                   
                                               )*/
+      const xnType=selectedCategory.toLowerCase();;
+      const xnType2=selectedItem.toLowerCase();
 
-      const error=  createTrans(xpData);
-       if(!error)
-       {
-        onClose();
-       }
+      
+      
+      
+      const Acc1:string=selectedCategoryLabel;
+      const Acc2:string=selectedItemLabel;
+      
+
+      console.log('Item Label',selectedItemLabel)
+     /*
+      
+      Cash +  from Wallet  inout=-1 xntype='wallet'  Category='wallet -' item= 'from Wallet'
+      Cash -  to Wallet  inout=1 xntype='wallet'  Category='wallet +' item= 'to Wallet'
+
+      Cash +  from bank  inout=-1 xntype='cash'  Category='cash -' item= 'from Bank A/C'
+      Cash -  to bank  inout=1 xntype='cash'  Category='cash +' item= 'to Bank A/C'
+
+      
+      Bank +  from bank  inout=-1 xntype='bank'  Category='Bank Ac1 -' item= 'from Bank A/C2'
+      Bank -  from bank  inout=-1 xntype='bank'  Category='Bank Ac1 -' item= 'from Bank A/C2'
+      Bank +  from cash  inout=1 xntype='cash'  Category='cash +' item= 'to Bank A/C'
+      Bank -  to cash  inout=1 xntype='cash'  Category='cash +' item= 'to Bank A/C'
+      Bank +  from wallet  inout=1 xntype='cash'  Category='cash +' item= 'to Bank A/C'
+      Bank -  from wallet  inout=1 xntype='cash'  Category='cash +' item= 'to Bank A/C'
+
+
+
+     */
+      
+      /* 2 transactions at a time */
+      if(xnType!=='op')
+      {
+        /* From Acccount */
+      const error=  createTrans({
+
+                        xndate:xpData?.xndate,
+                    category:Acc1,
+                    item:Acc2,    
+                    amount:xpData?.amount,
+                    notes:xpData?.notes,
+                    xntype:xnType,
+                    user_id:profile?.id,
+                    bankid:0,
+                    xninout:-1,
+                    xn_for:'XCH',
+                    bank_name:'',
+
+
+                          });
+                          console.log('from Account',error)
+    } 
+    
+      if(xnType2!=='op')
+      {
+        /* To Acccount */
         
+      const error1=  createTrans({
+
+                        xndate:xpData?.xndate,
+                    category:Acc2,
+                    item:Acc1,    
+                    amount:xpData?.amount,
+                    notes:xpData?.notes,
+                    xntype:xnType2,
+                    user_id:profile?.id,
+                    bankid:0,
+                    xninout:1,
+                    xn_for:'XCH',
+                    bank_name:'',
+
+
+                          });
+                          console.log('To Account',error1)
+    } 
          
      
     
 
 }
 
-const UpdateExpenses=async(id)=>{
- // const isoDate = xpData?.xndate.toISOString();
 
-  console.log("Updatign", xpData)
-       
-          /*  const {data,error}=await supabase
-                                    .from('transactions')
-                                    .update(xpData).eq('id',xpData?.id)*/
-         const data=     updateTrans({id:id,updatedFields: {
-                xndate: xpData?.xndate,
-                category:xpData?.category,
-                item:xpData?.item,
-                amount:xpData?.amount,
-                xntype:xpData?.xntype,
-                notes:xpData?.notes
-
-              }})
-                    console.log('Update Result',data)       ;
-              onClose();
-    
-
-}
 
   return (
     <>
@@ -121,8 +172,8 @@ const UpdateExpenses=async(id)=>{
                         
 
                           <View style={[mystyles.modalView,{gap:5}]}>
-                         
                           
+                            
                             <View style={mystyles.expInputView}>
                            
                                 <TouchableOpacity      onPress={() =>{
@@ -145,7 +196,7 @@ const UpdateExpenses=async(id)=>{
           
           if (selectedDate) {
             setDate(selectedDate);
-            setXpData(prev => ({ ...prev, xndate: selectedDate }))
+            setXpData(prev => ({ ...prev, xndate: selectedDate() }))
             setShowDatePicker(false);
           }
         }}
@@ -156,58 +207,65 @@ const UpdateExpenses=async(id)=>{
                               
                               </TouchableOpacity>
 
-                              <View style={{ alignContent:'flex-end',alignItems:'flex-end',justifyContent:'flex-end' }}>
-                                <TouchableOpacity onPress={()=>setChecked(!isChecked)} 
-                                style={mystyles.expInputView}>
-                                
-                                <FontAwesome name={isChecked ? 'check-square' : 'square-o'} size={25}/>
-                                <Text style={{fontSize:16,textAlign:'center',color:'#f8a765',fontWeight:700}}> Now </Text>
-                                
-                                </TouchableOpacity>
-                                </View>
+                              
                              </View>
                               
                               </View>
-                               
-                               <View style={mystyles.expInputView}>
-                                  <Text style={{width:'25%'}}>Category : </Text>
-                                  
-                                 <Dropdown
-  
-                                    data={CatgoryList}
-                                    labelField="label"
-                                    valueField="label"
-                                    search={false}
-                                    placeholder="Select Category"
-                                    value={xpData?.category}
-                                    style={mystyles.expInput}
-                                    onChange={value => setXpData(prev => ({ ...prev, category: value.label }))}
-                                  />
-                              </View>
                                 <View style={mystyles.expInputView}>
-                                  <Text style={{width:'25%'}}>Item : </Text>
+                                  <Text style={{width:'25%'}}>From : </Text>
                                    <Dropdown
   
                                     data={ItemList}
                                     labelField="label"
-                                    valueField="label"
+                                    valueField="value"
                                     autoScroll={true}
-                                    search={true}
+                                
                                     placeholder="Select Item"
-                                    value={xpData?.item}
+                                    value={xpData?.category}
                                     style={mystyles.expInput}
-                                    onChange={value => setXpData(prev => ({ ...prev, item: value.label }))}
+                                    onChange={
+                                      (value) =>{ 
+
+                                          setCategory(value.value)
+                                          setCategoryLabel(value.label)
+
+                                      }}
                                   />
                                  
                               </View>
+                            
 
+                              
                               <View style={mystyles.expInputView}>
                                   <Text style={{width:'25%'}}>Amount : </Text>
                                   <TextInput value={ xpData?.amount?.toString()  } keyboardType='numeric' 
                                   style={mystyles.expInput}
                                         onChangeText={(value) => setXpData(prev => ({ ...prev, amount: value }))}></TextInput>
                               </View>
-                            
+                                <View style={mystyles.expInputView}>
+                                  <Text style={{width:'25%'}}>To : </Text>
+                                   <Dropdown
+  
+                                    data={ItemList}
+                                    labelField="label"
+                                    valueField="value"
+                                    autoScroll={true}
+                                 
+                                    placeholder="Select Item"
+                                    value={xpData?.item}
+                                    style={mystyles.expInput}
+                                    onChange={
+                                      
+                                        value => {
+                                          setSelectedItem(value.value)
+                                          setSelectedItemLabel(value.label)
+                                        }
+
+
+                                    }
+                                  />
+                                 
+                              </View>
                               <View style={mystyles.expInputView}>
                                     <Text style={{width:'25%'}}>Notes : </Text>
                                     <TextInput value={xpData?.notes} style={mystyles.expInput} 
@@ -216,32 +274,9 @@ const UpdateExpenses=async(id)=>{
 
                                   
                               <View style={mystyles.expInputView}>
-                                  <TouchableOpacity style={[mystyles.txnType,{backgroundColor:(xpData?.xntype==='wallet')?Colors.light.tint:  'transparent'}]}
-                                    onPress={()=>{
-                                    setIsCollapsed(true)
-                                    setXpData(prev => ({ ...prev, xntype: 'wallet' }))}
-                                    }>
-                                      <Ionicons name='wallet' size={22} color={(xpData?.xntype==='wallet')?'white':'#ee710b'}/>
-                                      <Text style={{fontSize:15,color:(xpData?.xntype==='wallet')?'white': Colors.light.tint}}>Wallet</Text>
-                                  </TouchableOpacity>
-                                  
-                                <TouchableOpacity style={[mystyles.txnType,{backgroundColor:(xpData?.xntype==='cash')?Colors.light.tint:  'transparent'}]}
-                                    onPress={()=>{
-                                    setIsCollapsed(true)
-                                    setXpData(prev => ({ ...prev, xntype: 'cash' }))}
-                                    }>
-                                      <Ionicons name='cash' size={22} color={(xpData?.xntype==='cash')?'white':'#ee710b'}/>
-                                      <Text style={{fontSize:15,color:(xpData?.xntype==='cash')?'white': Colors.light.tint}}>Cash</Text>
-                                  </TouchableOpacity>
+                                 
 
-                                <TouchableOpacity style={[mystyles.txnType,{backgroundColor:(xpData?.xntype==='bank')?Colors.light.tint:  'transparent'}]}
-                                    onPress={()=>{
-                                    setIsCollapsed(false)
-                                    setXpData(prev => ({ ...prev, xntype: 'bank' }))}
-                                    }>
-                                      <FontAwesome name='bank' size={22} color={(xpData?.xntype==='bank')?'white':'#ee710b'}/>
-                                      <Text style={{fontSize:15,color:(xpData?.xntype==='bank')?'white': Colors.light.tint}}>BAnk</Text>
-                                  </TouchableOpacity>
+                               
                                   
 
                        
@@ -293,4 +328,4 @@ const UpdateExpenses=async(id)=>{
   )
 }
 
-export default ExpenseForm
+export default BankForm

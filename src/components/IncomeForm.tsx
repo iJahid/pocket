@@ -101,14 +101,7 @@ const UpdateExpenses=async(id)=>{
           /*  const {data,error}=await supabase
                                     .from('transactions')
                                     .update(xpData).eq('id',xpData?.id)*/
-         const data=     updateTrans({id:id,updatedFields: {
-                category:xpData?.category,
-                item:xpData?.item,
-                amount:xpData?.amount,
-                xntype:xpData?.xntype,
-                notes:xpData?.notes
-
-              }})
+         const data=     updateTrans({id:id,updatedFields:xpData})
                     console.log('Update Result',data)       ;
               onClose();
     
@@ -121,16 +114,8 @@ const UpdateExpenses=async(id)=>{
                         
 
                           <View style={[mystyles.modalView,{gap:5}]}>
-                            <View style={mystyles.expInputView}>
-                              <Ionicons name='arrow-up-circle' size={30}/>
-                              <TouchableOpacity><Text>Expense</Text></TouchableOpacity>
-                              <TouchableOpacity><Text>Give Loan</Text></TouchableOpacity>
-                              </View>
-                              <View style={mystyles.expInputView}>
-                                <Ionicons name='arrow-down-circle' size={30}/>
-                              <TouchableOpacity><Text>Income</Text></TouchableOpacity>
-                              <TouchableOpacity><Text>Take Loan</Text></TouchableOpacity>
-                            </View>
+                          
+                            
                             <View style={mystyles.expInputView}>
                            
                                 <TouchableOpacity      onPress={() =>{
@@ -153,7 +138,7 @@ const UpdateExpenses=async(id)=>{
           
           if (selectedDate) {
             setDate(selectedDate);
-            setXpData(prev => ({ ...prev, xndate: selectedDate() }))
+            setXpData(prev => ({ ...prev, xndate: selectedDate }))
             setShowDatePicker(false);
           }
         }}

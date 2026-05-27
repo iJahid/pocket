@@ -83,13 +83,13 @@ if(isPending)
                             
                             
                             </View>
-                          <View style={{width:'32%',padding:2}}> 
+                          <View style={{width:100,padding:2}}> 
                             <Text> {dayjs(xpData?.xndate).format('ddd DD.MM.YY')}</Text>
                             </View>
-                          <View style={{width:'20%',padding:2}}> 
+                          <View style={{width:70,padding:2}}> 
                             <Text numberOfLines={2} style={{color:'#620ffc'}}>{xpData?.category}  </Text>
                           </View>
-                          <View style={{width:'45%',padding:2}}> 
+                          <View style={{padding:2}}> 
                           <Text numberOfLines={2}>{xpData?.item}</Text>
                           </View>
                         </View>

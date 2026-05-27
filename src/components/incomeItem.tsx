@@ -6,7 +6,7 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import dayjs from 'dayjs'
 import React, { useEffect, useState } from 'react'
 import { ActivityIndicator, Modal, Text, TouchableOpacity, View } from 'react-native'
-import ExpenseForm from './ExpenseForm'
+import IncomeForm from './IncomeForm'
 
 
 
@@ -57,7 +57,7 @@ if(isPending)
 
                         <TouchableOpacity style={[
   mystyles.row, 
-  { backgroundColor: xpData?.xninout === 1 ? '#bcebec' : 'transparent' }
+  
 ]} onPress={()=>{
                           
                           setModalVisible(true)
@@ -68,28 +68,17 @@ if(isPending)
                        
                         <View style={[mystyles.rowLabel,
                           {flex:4,flexDirection:'row',
-                           width:'80%',maxWidth:'80%',
+                           width:'99%',maxWidth:'99%',
                            
                            }]}>
-                              <View style={{width:25,padding:2}}> 
-                            
-                            {
-                            (xpData?.xninout==-1)?<Ionicons name='arrow-up-circle' size={20} color={'#e66510'}/>:
-<Ionicons name='arrow-down-circle' size={20} color={'#077a10'}/>
-                            }
-                            
-                            
-                            
-                            
-                            
-                            </View>
-                          <View style={{width:'32%',padding:2}}> 
+                        
+                          <View style={{width:100,padding:2}}> 
                             <Text> {dayjs(xpData?.xndate).format('ddd DD.MM.YY')}</Text>
                             </View>
-                          <View style={{width:'20%',padding:2}}> 
+                          <View style={{width:80,padding:2}}> 
                             <Text numberOfLines={2} style={{color:'#620ffc'}}>{xpData?.category}  </Text>
                           </View>
-                          <View style={{width:'45%',padding:2}}> 
+                          <View style={{padding:2}}> 
                           <Text numberOfLines={2}>{xpData?.item}</Text>
                           </View>
                         </View>
@@ -127,7 +116,7 @@ if(isPending)
                           <Text style={mystyles.closeText}>✕</Text>
                         </TouchableOpacity>
 
-                            <ExpenseForm inputdata={xpData} isAdd={false} onClose={()=>setModalVisible(false)} />
+                            <IncomeForm inputdata={xpData} isAdd={false} onClose={()=>setModalVisible(false)} />
                                                        
                          </View>
                       

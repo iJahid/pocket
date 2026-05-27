@@ -72,7 +72,7 @@ isAdd:boolean;
 
 export type expDataTypeDB{
   
- id:number;
+ id:number | null;
  // $created_at:Date;
   xndate :Date;
   category :string;

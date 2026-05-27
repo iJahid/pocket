@@ -7,7 +7,7 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import dayjs from 'dayjs'
 import React, { useEffect, useState } from 'react'
-import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import Collapsible from 'react-native-collapsible'
 import { Dropdown } from "react-native-element-dropdown"
 
@@ -15,26 +15,26 @@ import { Dropdown } from "react-native-element-dropdown"
 
 
 const CatgoryList = [
-  { label: 'Bazar' },
-  { label: 'Regular' },
-  { label: 'Nasta' },
+  { label: 'Loan' },
+  
+  
 ];
 
 
 const ItemList = [
-  { label: 'Egg' },
-  { label: 'Bread' },
-  { label: 'Coacacola' },
-  { label: 'Meat' },
+  { label: 'Person 1',value:1 },
+  { label: 'Person 2' ,value:2},
+  { label: 'Person 3' ,value:3},
+  
 ];
-const ExpenseForm = ({inputdata,isAdd,onClose}) => {
+const LaonForm = ({inputdata,isAdd,onClose}) => {
 
     const [isChecked, setChecked] = useState(true);
     const [showDatePicker, setShowDatePicker] = useState(false);
-
+    
 
     const [date, setDate] = useState(new Date());
-    const [selectedCategory, setCategory] = useState(null);
+    
     const [isCollapsed, setIsCollapsed] = useState(true);
     const [xpData,setXpData]=useState<expDataTypeDB>()
 
@@ -101,7 +101,6 @@ const UpdateExpenses=async(id)=>{
                                     .from('transactions')
                                     .update(xpData).eq('id',xpData?.id)*/
          const data=     updateTrans({id:id,updatedFields: {
-                xndate: xpData?.xndate,
                 category:xpData?.category,
                 item:xpData?.item,
                 amount:xpData?.amount,
@@ -121,8 +120,8 @@ const UpdateExpenses=async(id)=>{
                         
 
                           <View style={[mystyles.modalView,{gap:5}]}>
-                         
                           
+                            
                             <View style={mystyles.expInputView}>
                            
                                 <TouchableOpacity      onPress={() =>{
@@ -145,7 +144,7 @@ const UpdateExpenses=async(id)=>{
           
           if (selectedDate) {
             setDate(selectedDate);
-            setXpData(prev => ({ ...prev, xndate: selectedDate }))
+            setXpData(prev => ({ ...prev, xndate: selectedDate() }))
             setShowDatePicker(false);
           }
         }}
@@ -156,44 +155,21 @@ const UpdateExpenses=async(id)=>{
                               
                               </TouchableOpacity>
 
-                              <View style={{ alignContent:'flex-end',alignItems:'flex-end',justifyContent:'flex-end' }}>
-                                <TouchableOpacity onPress={()=>setChecked(!isChecked)} 
-                                style={mystyles.expInputView}>
-                                
-                                <FontAwesome name={isChecked ? 'check-square' : 'square-o'} size={25}/>
-                                <Text style={{fontSize:16,textAlign:'center',color:'#f8a765',fontWeight:700}}> Now </Text>
-                                
-                                </TouchableOpacity>
-                                </View>
+                              
                              </View>
                               
                               </View>
                                
-                               <View style={mystyles.expInputView}>
-                                  <Text style={{width:'25%'}}>Category : </Text>
-                                  
-                                 <Dropdown
-  
-                                    data={CatgoryList}
-                                    labelField="label"
-                                    valueField="label"
-                                    search={false}
-                                    placeholder="Select Category"
-                                    value={xpData?.category}
-                                    style={mystyles.expInput}
-                                    onChange={value => setXpData(prev => ({ ...prev, category: value.label }))}
-                                  />
-                              </View>
                                 <View style={mystyles.expInputView}>
-                                  <Text style={{width:'25%'}}>Item : </Text>
+                                  <Text style={{width:'25%'}}>Person : </Text>
                                    <Dropdown
   
                                     data={ItemList}
                                     labelField="label"
                                     valueField="label"
                                     autoScroll={true}
-                                    search={true}
-                                    placeholder="Select Item"
+                                    
+                                    placeholder="Select Person"
                                     value={xpData?.item}
                                     style={mystyles.expInput}
                                     onChange={value => setXpData(prev => ({ ...prev, item: value.label }))}
@@ -201,6 +177,23 @@ const UpdateExpenses=async(id)=>{
                                  
                               </View>
 
+                              <View style={{flex: 1,flexDirection:'row', marginLeft:120,minHeight:50,
+    alignItems: 'center',
+    justifyContent: 'center'}}> 
+                              <Text style={{fontSize:18,fontWeight:700,
+                                color:xpData?.xninout==1?'gray':'red'}}>Give  </Text>
+                                <Switch
+                                                  onValueChange={(value) => setXpData(prev => ({ ...prev, xninout: ((value===true)?1:-1) }))
+                                                  
+                                                  }
+                                                  thumbColor={'#f4f3f4'}
+                                                  ios_backgroundColor="#3e3e3e"
+                                                  style={ {transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }] }}
+                                                  value={(xpData?.xninout==1) ?true:false} />
+                                  <Text style={{width:100,marginRight:120,paddingLeft:20,fontSize:18,fontWeight:700,
+                                    color:xpData?.xninout==1?'red':'gray'}}>Take</Text>
+                                 
+                              </View>
                               <View style={mystyles.expInputView}>
                                   <Text style={{width:'25%'}}>Amount : </Text>
                                   <TextInput value={ xpData?.amount?.toString()  } keyboardType='numeric' 
@@ -277,7 +270,7 @@ const UpdateExpenses=async(id)=>{
                             
                             
                           
-                        }
+                              }
                             >
                             <Ionicons name='save' size={20}/>
                             <Text style={{fontSize:16}}>  {isAdd?'Add':'Update'}</Text></TouchableOpacity>
@@ -293,4 +286,4 @@ const UpdateExpenses=async(id)=>{
   )
 }
 
-export default ExpenseForm
+export default LaonForm

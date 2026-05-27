@@ -8,3 +8,15 @@ dayjs
 @react-native-async-storage/async-storage
 react-native-collapsible
 react-native-element-dropdown
+
+
+CREATE OR REPLACE FUNCTION get_sumary_by_date(input_date_from DATE,input_date_to DATE,exp_type text)
+RETURNS TABLE (expense NUMERIC,income NUMERIC) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT COALESCE(SUM(CASE WHEN xninout = 1 THEN 0 ELSE amount END), 0) AS Expense ,COALESCE(SUM(CASE WHEN xninout = 1 THEN amount ELSE 0 END), 0) AS Income
+    FROM transactions
+    WHERE xndate >= input_date_from and xndate <= input_date_to
+      AND xntype = exp_type;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

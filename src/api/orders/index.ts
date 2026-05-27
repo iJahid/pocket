@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/providers/AuthProvider';
 import { expDataTypeDB, GroupMembers } from '@/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useId } from 'react';
 import { Alert } from 'react-native';
 
 export default function useOrdersList() {
@@ -398,24 +399,26 @@ export const useDeleteOrder=()=>{
 
 export const useCreateTrans=()=>{
   const queryClient = useQueryClient();
-  
+   const {session}=useAuth();
+    const userId=session?.user.id;
 
  return   useMutation({
     async mutationFn(xdata:any){
 
-      console.log('reqest data',xdata)
+    //  console.log('reqest data',xdata)
         const {data,error}=  await supabase
            .from('transactions')
            .insert(xdata).select('*').maybeSingle()
           
-          console.log('after create',data);
+      //    console.log('after create',data);
     return data;
 
  },
  async onSuccess(){
     // Invalidate and refetch
-    console.log('success creating Transaction');
-    await queryClient.invalidateQueries({ queryKey: ['Transactions'] });
+    //console.log('success creating Transaction');
+    await queryClient.invalidateQueries({ queryKey: ['Transactions',userId] });
+     await queryClient.invalidateQueries({ queryKey: ['userBalance',userId] });
  },
   onError(error:any){
     console.error('Error creating Transactions:', error);
@@ -430,6 +433,8 @@ export const useCreateTrans=()=>{
 export const useUpdateTrans = () => {
   
   const queryClient = useQueryClient();
+   const {session}=useAuth();
+    const userId=session?.user.id;
 
   return useMutation({
     async mutationFn({
@@ -444,8 +449,8 @@ export const useUpdateTrans = () => {
         .from('transactions')
         .update(updatedFields)
         .eq('id', id)
-        .select('*')
-        .single();
+        .select()
+        .maybeSingle();
 
       if (error) {
         Alert.alert(error.message)
@@ -453,10 +458,11 @@ export const useUpdateTrans = () => {
       }
       return updateTransData;
     },
-    async onSuccess(_,{id}) {
+    async onSuccess() {
        console.log('success Updated Transaction');
-       await queryClient.invalidateQueries({ queryKey: ['Transactions'] });
-    await queryClient.invalidateQueries({ queryKey: ['Transactions',id] });
+       await queryClient.invalidateQueries({ queryKey: ['Transactions',userId] });
+       await queryClient.invalidateQueries({ queryKey: ['userBalance',userId] });
+    
     },
   });
 };
@@ -470,7 +476,7 @@ export  function useTransactionList() {
     const isoToday = today.toISOString();
      
   return useQuery({
-    queryKey: ['Transactions'],
+    queryKey: ['Transactions',userId],
     queryFn: async()=>{
         if(!userId){
          return null;
@@ -499,7 +505,7 @@ export  function useTransactionListFor(xnfor:string) {
     const isoToday = today.toISOString();
       console.log('xnfor',xnfor)
   return useQuery({
-    queryKey: ['Transactions',xnfor],
+    queryKey: ['Transactions',userId,xnfor],
     queryFn: async()=>{
         if(!userId){
          return null;
@@ -529,7 +535,8 @@ export  function useTransactionListFor(xnfor:string) {
 
 
 export const useDeleteTransction=()=>{
-    
+       const {session}=useAuth();
+    const userId=session?.user.id;
   const queryClient = useQueryClient();
  return   useMutation({
 
@@ -547,7 +554,8 @@ export const useDeleteTransction=()=>{
  async onSuccess(){
     // Invalidate and refetch
     console.log('sucessfully Deleted');
-    await queryClient.invalidateQueries({ queryKey: ['Transactions'] });
+    await queryClient.invalidateQueries({ queryKey: ['Transactions',useId] });
+    await queryClient.invalidateQueries({ queryKey: ['userBalance',userId] });
     
  },
   onError(error:any){
@@ -558,4 +566,198 @@ export const useDeleteTransction=()=>{
 
 
 )
+}
+
+
+export  function useTransactionSummary(fromDate:string,toDate:string,expType:string[]) {
+    const {session}=useAuth();
+    const userId=session?.user.id;
+  
+    //const isoFromDate = fromDate.toISOString();
+    //const isoToDate = toDate.toISOString();
+
+  return useQuery({
+    queryKey: ['Transactions',userId,expType],
+    queryFn: async()=>{
+        if(!userId){
+         return null;
+        }
+       
+       
+ const { data,error } = await supabase
+          .rpc("get_sumary_by_date", {
+            user_id: userId,
+            input_date_from: fromDate,
+            input_date_to: toDate,
+            exp_type: expType
+          })
+          
+          
+
+
+        if(error)
+        {
+          console.log(error);
+        }
+        return data;
+    }
+  });
+    
+  
+}
+export  function useSummaryFor(fromDate:string,toDate:string,exp_for:string) {
+    const {session}=useAuth();
+    const userId=session?.user.id;
+  
+    //const isoFromDate = fromDate.toISOString();
+    //const isoToDate = toDate.toISOString();
+
+  return useQuery({
+    queryKey: ['useSummaryFor',userId,exp_for],
+    queryFn: async()=>{
+        if(!userId){
+         return null;
+        }
+       
+       
+ const { data,error } = await supabase
+          .rpc("get_sumary_by_date", {
+            user_id: userId,
+            input_date_from: fromDate,
+            input_date_to: toDate,
+            exp_for: exp_for
+          })
+          
+          
+
+
+        if(error)
+        {
+          console.log(error);
+        }
+        return data;
+    }
+  });
+    
+  
+}
+
+// 1. Define the interface matching your Postgres TABLE return type
+interface BalanceData {
+  expense: number;
+  income: number;
+}
+
+interface UseBalanceProps {
+  userId: string;
+  expenseTypes: string[];
+}
+
+
+// 1. Define the interface matching your Postgres TABLE return type
+interface BalanceData {
+  expense: number;
+  income: number;
+}
+
+interface UseBalanceProps {
+  userId: string;
+  expenseTypes: string[];
+}
+
+export function useUserBalance({ userId, expenseTypes }: UseBalanceProps) {
+  return useQuery<BalanceData | null, Error>({
+    // Keep your queryKey synchronized with your dependencies
+    queryKey: ['userBalance', userId],
+    
+    queryFn: async () => {
+      // Guard clause to prevent unnecessary calls if userId is empty
+      if (!userId) return null;
+
+      const { data, error } = await supabase.rpc('get_balance', {
+        userid: userId,        // Matches 'userid uuid' in SQL
+        exp_type: expenseTypes // Matches 'exp_type text[]' in SQL
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      // RETURNS TABLE always returns an array of objects
+      if (data && data.length > 0) {
+        return data[0] as BalanceData;
+      }
+
+      return { expense: 0, income: 0 };
+    },
+    // Optional: Prevent fetching if arguments aren't valid yet
+    enabled: !!userId && expenseTypes.length > 0, 
+  });
+}
+
+
+export  function useTransactionBalance(expType:string[]) {
+    const {session}=useAuth();
+    const userId=session?.user.id;
+  
+    //const isoFromDate = fromDate.toISOString();
+    //const isoToDate = toDate.toISOString();
+
+  return useQuery({
+    queryKey: ['TransactionsBalance',userId,expType],
+    queryFn: async()=>{
+        if(!userId){
+         return null;
+        }
+       
+       
+ const { data,error } = await supabase
+          .rpc("get_sumary_by_date", {
+            user_id: userId,
+            
+            exp_type: expType
+          })
+          
+          
+
+
+        if(error)
+        {
+          console.log(error);
+        }
+        console.log('useBalance',data)
+        return data;
+    }
+  });
+    
+  
+}
+
+
+export const  getUserBalance=async ( expenseTypes: string[]) =>{
+     const {session}=useAuth();
+    const userId=session?.user.id;
+  try {
+    const { data, error } = await supabase.rpc('get_balance', {
+      userid: userId,          // Must match 'userid uuid' exactly
+      exp_type: expenseTypes   // Must match 'exp_type text[]' exactly
+    });
+
+    if (error) {
+      console.error('RPC Error:', error.message);
+      return null;
+    }
+
+    // Since RETURNS TABLE can return multiple rows, 'data' will be an array.
+    // Access the first row to get your income and expense numbers.
+    if (data && data.length > 0) {
+      const { expense, income } = data[0];
+      return { expense, income };
+    }
+
+    return { expense: 0, income: 0 };
+  } catch (err) {
+    console.error('Unexpected error:', err);
+    return null;
+  }
 }

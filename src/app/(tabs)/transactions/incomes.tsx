@@ -2,6 +2,7 @@ import { useTransactionListFor } from '@/api/orders'
 import { mystyles } from '@/lib/styles'
 import { useAuth } from '@/providers/AuthProvider'
 import { expDataTypeDB } from '@/types'
+import IncomeForm from '@components/IncomeForm'
 
 import IncomeItem from '@components/incomeItem'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
@@ -109,7 +110,7 @@ renderItem={({item})=>(<IncomeItem expData={item} isAdd={false}/>)}
                           <Text style={mystyles.closeText}>✕</Text>
                         </TouchableOpacity>
 
-                            <IncomeItem inputdata={xpDataAdd} isAdd={true} onClose={() => setModalVisible(false)}/>
+                            <IncomeForm inputdata={xpDataAdd} isAdd={true} onClose={() => setModalVisible(false)} />
                                                        
                          </View>
                       
