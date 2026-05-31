@@ -1,6 +1,6 @@
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { Stack, withLayoutContext } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View } from 'react-native';
 
 export const TopTabs = withLayoutContext(
   createMaterialTopTabNavigator().Navigator
@@ -8,7 +8,8 @@ export const TopTabs = withLayoutContext(
 
 export default function TransactionTabs() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }} edges={['top']}>
+    
+       <View style={{ flex: 1}}>
       <Stack.Screen options={{headerTitle:'Transactions'}}/>
       <TopTabs options={{ 
          
@@ -18,6 +19,7 @@ export default function TransactionTabs() {
         <TopTabs.Screen name="loans" options={{ title: 'Loan' }} />
         <TopTabs.Screen name="banks" options={{ title: 'Exchange' }} />
       </TopTabs>
-    </SafeAreaView>
+      </View>
+    
   );
 }

@@ -41,14 +41,14 @@ const BankForm = ({inputdata,isAdd,onClose}) => {
     const [isCollapsed, setIsCollapsed] = useState(true);
     const [xpData,setXpData]=useState<expDataTypeDB>()
 
-    const { mutate: createTrans,isPending,isSuccess } = useCreateTrans();
-    const { mutate: updateTrans,isPending:isUpdating } = useUpdateTrans();
+    const { mutate: createTrans,isPending,isSuccess } = useCreateTrans('XCH');
+    const { mutate: updateTrans,isPending:isUpdating } = useUpdateTrans('XCH');
 
 
 
 useEffect(()=>{
-  console.log('Form Add Option',isAdd)
-  console.log('Form  Data',inputdata,inputdata?.xntype)
+  //console.log('Form Add Option',isAdd)
+  //console.log('Form  Data',inputdata,inputdata?.xntype)
   setXpData(inputdata);
   if(inputdata?.xntype==='bank'){
     setIsCollapsed(false)
@@ -92,7 +92,7 @@ const CreateExpenses=async()=>{
       const Acc2:string=selectedItemLabel;
       
 
-      console.log('Item Label',selectedItemLabel)
+      //console.log('Item Label',selectedItemLabel)
      /*
       
       Cash +  from Wallet  inout=-1 xntype='wallet'  Category='wallet -' item= 'from Wallet'
@@ -177,14 +177,15 @@ const CreateExpenses=async()=>{
                             <View style={mystyles.expInputView}>
                            
                                 <TouchableOpacity      onPress={() =>{
-                                      if(!isChecked){
+                                     
                                       setShowDatePicker(true)
-                                      }
+                                      
 
                                 } }   >
                                   <Text style={{fontSize:18,textAlign:'center',color:'#7002ff',fontWeight:700}}> 
                                       {dayjs(xpData?.xndate).format('ddd DD.MM.YY')}
                                       </Text>
+                                     
 
 
  {showDatePicker && (
@@ -192,22 +193,22 @@ const CreateExpenses=async()=>{
         value={date}
         mode="date"
         display="default"
-        onValueChange={(event, selectedDate) => {
+        onChange={(event, selectedDate) => {
           
           if (selectedDate) {
             setDate(selectedDate);
-            setXpData(prev => ({ ...prev, xndate: selectedDate() }))
+            setXpData(prev => ({ ...prev, xndate: selectedDate }))
             setShowDatePicker(false);
           }
         }}
-        onDismiss={() => setShowDatePicker(false)}
+       
       />
     )}
 
                               
                               </TouchableOpacity>
 
-                              
+                               
                              </View>
                               
                               </View>

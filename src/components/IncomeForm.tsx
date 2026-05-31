@@ -39,8 +39,8 @@ const IncomeForm = ({inputdata,isAdd,onClose}) => {
     const [isCollapsed, setIsCollapsed] = useState(true);
     const [xpData,setXpData]=useState<expDataTypeDB>()
 
-    const { mutate: createTrans,isPending,isSuccess } = useCreateTrans();
-    const { mutate: updateTrans,isPending:isUpdating } = useUpdateTrans();
+    const { mutate: createTrans,isPending,isSuccess } = useCreateTrans('IN');
+    const { mutate: updateTrans,isPending:isUpdating } = useUpdateTrans('IN');
 
 
 
@@ -119,9 +119,9 @@ const UpdateExpenses=async(id)=>{
                             <View style={mystyles.expInputView}>
                            
                                 <TouchableOpacity      onPress={() =>{
-                                      if(!isChecked){
+                                     
                                       setShowDatePicker(true)
-                                      }
+                                      
 
                                 } }   >
                                   <Text style={{fontSize:18,textAlign:'center',color:'#7002ff',fontWeight:700}}> 
@@ -134,30 +134,25 @@ const UpdateExpenses=async(id)=>{
         value={date}
         mode="date"
         display="default"
-        onValueChange={(event, selectedDate) => {
+        onChange={(event, selectedDate) => {
           
           if (selectedDate) {
             setDate(selectedDate);
             setXpData(prev => ({ ...prev, xndate: selectedDate }))
             setShowDatePicker(false);
           }
+          if (event.type === 'dismissed') {
+            setShowDatePicker(false)
+           }
         }}
-        onDismiss={() => setShowDatePicker(false)}
+        
       />
     )}
 
                               
                               </TouchableOpacity>
 
-                              <View style={{ alignContent:'flex-end',alignItems:'flex-end',justifyContent:'flex-end' }}>
-                                <TouchableOpacity onPress={()=>setChecked(!isChecked)} 
-                                style={mystyles.expInputView}>
-                                
-                                <FontAwesome name={isChecked ? 'check-square' : 'square-o'} size={25}/>
-                                <Text style={{fontSize:16,textAlign:'center',color:'#f8a765',fontWeight:700}}> Now </Text>
-                                
-                                </TouchableOpacity>
-                                </View>
+                             
                              </View>
                               
                               </View>

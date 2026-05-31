@@ -36,15 +36,15 @@ if(isLoading)
 {
   return <ActivityIndicator size={40}/>
 }
-console.log('index page group list',grouplist)
+//console.log('index page group list',grouplist)
 if(!grouplist)
       {
-        console.log('redirecting from home page',grouplist)
+        //console.log('redirecting from home page',grouplist)
         return <Redirect href='/GroupsScreen'/>
       }
       if(grouplist.length===0)
       {
-        console.log('redirecting from home page',grouplist)
+       // console.log('redirecting from home page',grouplist)
         return <Redirect href='/GroupsScreen'/>
       }
  return <View>

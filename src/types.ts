@@ -72,7 +72,7 @@ isAdd:boolean;
 
 export type expDataTypeDB{
   
- id:number | null;
+ //id:number | null;
  // $created_at:Date;
   xndate :Date;
   category :string;
@@ -85,5 +85,5 @@ export type expDataTypeDB{
   bank_name :string;
   user_id:string;
   xn_for:string | 'XP';
-  //isAdd:boolean;
+ // isAdd:boolean;
 }

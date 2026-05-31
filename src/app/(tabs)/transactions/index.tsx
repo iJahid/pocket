@@ -1,14 +1,14 @@
-import { useSummaryFor, useTransactionList, useUserBalance } from '@/api/orders'
+import { useSummaryByCatg, useSummaryFor, useTransactionList, useUserBalance } from '@/api/orders'
 import { mystyles } from '@/lib/styles'
 import { useAuth } from '@/providers/AuthProvider'
 import { expDataTypeDB } from '@/types'
 import ExpenseForm from '@components/ExpenseForm'
 import ExpenseItem from '@components/expenseItem'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
+import Ionicons from '@expo/vector-icons/Ionicons'
+import { router, Stack } from 'expo-router'
 import React, { useEffect, useState } from 'react'
 import { ActivityIndicator, FlatList, Modal, RefreshControl, Text, TouchableOpacity, View } from 'react-native'
-
-
 const xpDataAdd1:expDataTypeDB={
    
     xndate:new Date(),
@@ -19,6 +19,9 @@ notes:'',
 xntype:'wallet',
 user_id:'',
 bankid:0,
+xn_for:'XP',
+xninout:-1,
+bank_name:'',
 
 
 }
@@ -37,14 +40,27 @@ const Expenses = () => {
   const [xpDataAdd,setXpDataAdd]=useState<expDataTypeDB>()
 
   const today = new Date();
+  const now = new Date();
+  //"2026-05-28T17:59:59.999Z"
 const startOfToday = new Date(today.setHours(0, 0, 0, 0)).toISOString();
 const endOfToday = new Date(today.setHours(23, 59, 59, 999)).toISOString();
-const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString();
-const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59, 999).toISOString();
 
 
-const {data: xpData,isRefetching,refetch}=  useTransactionList()
-const {data: ThisMonthExpense,refetch:refetchSumFor}=  useSummaryFor(startOfMonth,endOfMonth,'XP')
+const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0)).toISOString();
+
+// End of current month in UTC
+const endOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59, 999)).toISOString();
+
+const startOfLastMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1)).toISOString();
+const endOfLastMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 0, 23, 59, 59, 999)).toISOString();;
+
+
+const {data: xpData,isRefetching,refetch}=  useTransactionList('This')
+
+const {data: ThisMonthExpense,error:summaryError,refetch:refetchSumFor}=  useSummaryFor(startOfMonth,endOfMonth,'XP','thismonth')
+const {data: LastMonthExpense,error:summaryErrorL,refetch:refetchSumForL}=  useSummaryFor(startOfLastMonth,endOfLastMonth,'XP','Lastmonth')
+const {data: ThisMonthExpenseCatg,error:summaryCatgError,refetch:refetchSumCatg}=  useSummaryByCatg(startOfMonth,endOfMonth,'XP')
+
 //const {data: summaryData,isRefetching: isSummaryRefetching,refetch: refetchSummary  }=  useTransactionSummary(startOfToday,endOfToday,['wallet'])
 //const {data: summaryDataMonth,isRefetching: isSummaryRefetchingMonth,refetch: refetchSummaryMonth  }=  useTransactionSummary(startOfMonth,endOfMonth,['wallet'])
 //const {data: balanceData,isRefetching: isBalanceRefetching,refetch: refetchBalance  }=  useTransactionBalance(['wallet','-'])
@@ -59,13 +75,14 @@ const {data: ThisMonthExpense,refetch:refetchSumFor}=  useSummaryFor(startOfMont
 
 
 
-
   useEffect(()=>{
     
-
-        
+      /*console.log('THis',startOfMonth,endOfMonth)        
+      console.log('Last',startOfLastMonth,endOfLastMonth)        
       //const balance= useUserBalance getUserBalance(['wallet']);
       console.log('Balane',BalanceData)
+        console.log('LastMonthExpense',LastMonthExpense)
+         console.log('ThisMonthExpense',ThisMonthExpense)*/
          /*   const {data,error}=await supabase.from('transactions').select('*').eq('user_id',profile?.id)
             setXpData(data as any);
             setXpDataAdd(xpDataAdd1 as any);
@@ -81,17 +98,92 @@ const {data: ThisMonthExpense,refetch:refetchSumFor}=  useSummaryFor(startOfMont
   
 if (isLoading) return <ActivityIndicator size="large" />;
   if (balaceError) return <Text>Error: {error.message}</Text>;
-
+  if(summaryError) return <Text>Error: {summaryError.message}</Text>;
+   if(summaryErrorL) return <Text>Error: {summaryErrorL.message}</Text>;
   
   return (
     <>
    
-                  
+ <Stack.Screen options={{headerRight:()=>{
+  {/* Balance Card */}
+      return(
+        
+        <Text>Hellp</Text>
+        )
+
+
+ }}}                 />
+ <View
+      
+          style={[{backgroundColor:'#f0f2f5',borderBottomWidth:1,borderBottomColor:'#cdf',marginTop:5,padding:5}]}
+        >
+        <View style={mystyles.balanceRow}>
+  
+  
+
+            <View style={{flex:2,flexDirection:'row',justifyContent:'center',alignContent:'center',alignItems:'center'}}>
+            <Ionicons name='wallet' size={30} color={'#72680b'}/>
+             <Text style={[mystyles.balanceLabel,{fontSize:25}]}> {(BalanceData?.income ?? 0) -(BalanceData?.expense ?? 0)}</Text>
+            </View> 
+
+
+            <View>
+              <Text style={mystyles.balanceLabel}>This Month Expense</Text>
+
+              <Text style={mystyles.balanceAmount}>{-(ThisMonthExpense[0]?.income ?? 0) +(ThisMonthExpense[0]?.expense ?? 0)}</Text>
+                   
+            </View>
+            <View>
+            
+              <Text style={mystyles.balanceLabel}>Last Month</Text>
+                <TouchableOpacity  onPress={()=>router.push('/(group)/lastMOnthExpense')}>
+                  <Text style={mystyles.balanceAmount}>{-(LastMonthExpense[0]?.income ?? 0) +(LastMonthExpense[0]?.expense ?? 0)}</Text>
+                  </TouchableOpacity>
+            </View>
+          
+        </View>
+
+
+      
+    <View style={mystyles.balanceRow}>
+          <FlatList
+           data={ThisMonthExpenseCatg}
+           renderItem={({ item }) => {
+    
+            
+              return <View>
+              <Text style={mystyles.smallLabel}>{item.category}</Text>
+              <Text style={mystyles.smallAmount}>{
+              
+              (item.category==='Regular')? `${Math.ceil(item.expense/30)}/Day `:`${item.expense}`
+              }</Text>
+              </View>
+            
+          }}
+          horizontal={true} // Enables horizontal scrolling
+          keyExtractor={(item) => item.category}
+          contentContainerStyle={{gap:14,paddingRight:5}}
+          />
+          </View>   
+          <View style={mystyles.balanceRow}>
+         
+            <View>
+              
+              
+            </View>
+
+            
+             
+
+            
+          </View>
+        </View>
 <FlatList
 data={xpData}
-renderItem={({item})=>(<ExpenseItem expData={item} isAdd={false}
+renderItem={({item})=>(
+<ExpenseItem expData={item} />)}
    contentContainerStyle={{ flexGrow: 1 }}
-   simultaneousHandlers={[]} // Forces gesture handler integration
+   
 refreshControl={
         <RefreshControl 
           refreshing={isRefetching} 
@@ -100,8 +192,8 @@ refreshControl={
       }
   
 
-/>)}
 />
+
 
                   
                   
@@ -111,23 +203,6 @@ refreshControl={
                    
                   
                     <View>
-        <View style={mystyles.section}>
-                   
-               <View style={mystyles.sectionBody}>
-                 <View style={[mystyles.rowWrapper, mystyles.rowFirst]}>
-                     <View style={mystyles.row}>
-                 
-                          <Text>Pocket: {(BalanceData?.income ?? 0) -(BalanceData?.expense ?? 0)}</Text>
-                                    <Text>This Month Expense: {-(ThisMonthExpense?.income ?? 0) +(ThisMonthExpense?.expense ?? 0)}</Text>
-      
-
-                        <View style={mystyles.rowSpacer} />
-                    </View>
-                 </View>
-               
-                </View>
-                
-        </View>
         
       </View>
                    
@@ -173,3 +248,5 @@ refreshControl={
 }
 
 export default Expenses
+
+

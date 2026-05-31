@@ -140,15 +140,20 @@ const UpdateExpenses=async(id)=>{
         value={date}
         mode="date"
         display="default"
-        onValueChange={(event, selectedDate) => {
+        onChange={(event, selectedDate) => {
           
           if (selectedDate) {
             setDate(selectedDate);
             setXpData(prev => ({ ...prev, xndate: selectedDate() }))
             setShowDatePicker(false);
           }
-        }}
-        onDismiss={() => setShowDatePicker(false)}
+
+            if(event.type=='dismissed')
+            {
+               setShowDatePicker(false)}
+            }
+        }
+        
       />
     )}
 

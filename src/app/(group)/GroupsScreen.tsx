@@ -39,7 +39,7 @@ export default function GroupsScreen(){
       .from("groupjoin_request")
       .select("*")
       .eq("email",session?.user?.email)
-      console.log('groupjoin_request',session?.user?.id,JSON.stringify(sentList,null,2),error)
+     // console.log('groupjoin_request',session?.user?.id,JSON.stringify(sentList,null,2),error)
     setRequestSent(sentList ||[])
   }
 

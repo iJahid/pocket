@@ -9,6 +9,13 @@ dayjs
 react-native-collapsible
 react-native-element-dropdown
 
+npm i @react-native-google-signin/google-signin
+
+npm install @react-native/metro-config --save-dev
+npm install babel-preset-expo --save-dev
+npm install babel-plugin-transform-dynamic-import --save-dev
+
+npx expo install expo-system-ui
 
 CREATE OR REPLACE FUNCTION get_sumary_by_date(input_date_from DATE,input_date_to DATE,exp_type text)
 RETURNS TABLE (expense NUMERIC,income NUMERIC) AS $$

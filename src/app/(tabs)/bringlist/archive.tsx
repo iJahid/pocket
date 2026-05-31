@@ -1,4 +1,4 @@
-import useOrdersList from '@/api/orders';
+import useOrdersListArchive from '@/api/orders';
 import { mystyles } from '@/lib/styles';
 import { useAuth } from '@/providers/AuthProvider';
 import BringItem from '@components/bringItems';
@@ -9,9 +9,9 @@ import { FlatList, View } from 'react-native';
 const BringList = () => {
    const {profile}=useAuth();
   //const [orderList,setOrderList]=useState<any []>([])
-const {data: orderList}=  useOrdersList()
+const {data: orderList}=  useOrdersListArchive()
     //      setOrderList(data);
- 
+ console.log(orderList,profile?.id);
 
 
  return (<>

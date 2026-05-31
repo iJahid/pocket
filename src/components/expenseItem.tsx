@@ -46,7 +46,7 @@ useEffect(()=>{
 
 
 },[])
-console.log('xpData',xpData);
+//console.log('xpData',xpData);
 if(isPending)
 {
   return <ActivityIndicator/>

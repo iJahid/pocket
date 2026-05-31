@@ -1,11 +1,9 @@
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/providers/AuthProvider';
-/*import {
+import {
   GoogleSignin,
-  GoogleSigninButton,
-  isSuccessResponse,
-  statusCodes,
-} from '@react-native-google-signin/google-signin';*/
+  statusCodes
+} from '@react-native-google-signin/google-signin';
 import * as WebBrowser from "expo-web-browser";
 
 import { Link, router, Stack } from 'expo-router';
@@ -14,15 +12,22 @@ import { ActivityIndicator, Alert, Keyboard, KeyboardAvoidingView, StyleSheet, T
 
 
 WebBrowser.maybeCompleteAuthSession();
-/*
-GoogleSignin.configure({
-  scopes:['p'],
-  webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID!, // Found in Google Cloud Console
-});
 
-*/
+
+
 
 const SignIn = () => {
+
+GoogleSignin.configure({
+  offlineAccess: true,
+  webClientId:"131936964337-tv15jctl4cin8fl9pmi02c5av218gsfe.apps.googleusercontent.com"
+ 
+  //webClientId:"131936964337-v75fh8gb1jbuo5n554a6l1hotl2vd036.apps.googleusercontent.com" // process.env.EXPO_PUBLIC_GOOGLE_WEB_ID!, // Found in Google Cloud Console
+  
+});
+
+
+
   const {session}=useAuth();
     const [email, setEmail] = React.useState('')
     const [password, setPassword] = React.useState('')
@@ -54,19 +59,34 @@ async function signInWithGoogle() {
   }
 }*/
 
-/*
+
 const signInWithGoogle = async () => {
-  try{
-
-      await GoogleSignin.hasPlayServices();
-      const userInfo=GoogleSignin.signIn();
-      console.log('sign in with google user ',userInfo)
-
-  }
-  catch(error){
-    console.error('sigin in errrp',error)
-  }
-}*/
+  try {
+          await GoogleSignin.hasPlayServices()
+          const response = await GoogleSignin.signIn()
+         console.log(response)
+  
+          /*if (isSuccessResponse(response)) {
+            const { data, error } = await supabase.auth.signInWithIdToken({
+              provider: 'google',
+              token: response.data.idToken,
+            })
+            console.log(error, data)
+            if(data){
+              router.push('/(tabs)')
+            }
+          }*/
+        } catch (error: any) {
+          if (error.code === statusCodes.IN_PROGRESS) {
+            // operation (e.g. sign in) is in progress already
+          } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+            // play services not available or outdated
+          } else {
+            // some other error happened
+          }
+          console.log('error',error)
+        }
+}
 /*
   const signInWithGoogle = async () => {
 
@@ -176,7 +196,7 @@ console.log(data,error)
             ><Text style={{padding:5,fontSize:18,fontWeight:800}}>Login</Text></TouchableOpacity>
             <TouchableOpacity
               style={styles.fbLoginButton}
-              
+              onPress={()=>signInWithGoogle()}
               
               
             ><Text style={{ fontSize: 14}}>Login With Google</Text></TouchableOpacity>

@@ -32,7 +32,7 @@ export default function useOrdersList() {
 
 
 
-
+          console.log(error);
         return data;
     }
   });
@@ -40,6 +40,35 @@ export default function useOrdersList() {
   
 }
 
+export  function useOrdersListArchive() {
+    const {session}=useAuth();
+    const userId=session?.user.id;
+      const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    const isoToday = today.toISOString();
+     
+  return useQuery({
+    queryKey: ['orders',userId,'Arc'],
+    queryFn: async()=>{
+        if(!userId){
+         return null;
+        }
+       
+ const { data,error } = await supabase
+          .from("orders")
+          .select('*').eq('order_to',userId)
+          .eq('status','bought')
+          .order('created_at', { ascending: false });
+
+
+console.log(error);
+
+        return data;
+    }
+  });
+    
+  
+}
 export function useUserGroupInfo() {
   const {session}=useAuth();
     const userId=session?.user.id;
@@ -128,7 +157,7 @@ export const useCreateRequest=()=>{
  return   useMutation({
     async mutationFn(data:any){
 
-      console.log('reqest data',data)
+     // console.log('reqest data',data)
         const {data:newOrder,error}=  await supabase
           .from("orders")
           .insert({
@@ -397,7 +426,7 @@ export const useDeleteOrder=()=>{
 
 /*Transactions Queries*/
 
-export const useCreateTrans=()=>{
+export const useCreateTrans=(expType:string)=>{
   const queryClient = useQueryClient();
    const {session}=useAuth();
     const userId=session?.user.id;
@@ -410,15 +439,16 @@ export const useCreateTrans=()=>{
            .from('transactions')
            .insert(xdata).select('*').maybeSingle()
           
-      //    console.log('after create',data);
+          console.log('after create',data);
     return data;
 
  },
  async onSuccess(){
     // Invalidate and refetch
     //console.log('success creating Transaction');
-    await queryClient.invalidateQueries({ queryKey: ['Transactions',userId] });
+    await queryClient.invalidateQueries({ queryKey: ['Transactions',userId,expType] });
      await queryClient.invalidateQueries({ queryKey: ['userBalance',userId] });
+     await queryClient.invalidateQueries({ queryKey: ['useTransactionSummary',userId,expType] });
  },
   onError(error:any){
     console.error('Error creating Transactions:', error);
@@ -430,7 +460,7 @@ export const useCreateTrans=()=>{
 }
 
 
-export const useUpdateTrans = () => {
+export const useUpdateTrans = (expType:string) => {
   
   const queryClient = useQueryClient();
    const {session}=useAuth();
@@ -460,7 +490,7 @@ export const useUpdateTrans = () => {
     },
     async onSuccess() {
        console.log('success Updated Transaction');
-       await queryClient.invalidateQueries({ queryKey: ['Transactions',userId] });
+       await queryClient.invalidateQueries({ queryKey: ['Transactions',userId,expType] });
        await queryClient.invalidateQueries({ queryKey: ['userBalance',userId] });
     
     },
@@ -468,15 +498,46 @@ export const useUpdateTrans = () => {
 };
 
 
-export  function useTransactionList() {
+export  function useTransactionList(qtype:string) {
     const {session}=useAuth();
     const userId=session?.user.id;
       const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
     const isoToday = today.toISOString();
+
+
+    const now = new Date();
+    const startOfToday = new Date(today.setHours(0, 0, 0, 0)).toISOString();
+    const endOfToday = new Date(today.setHours(23, 59, 59, 999)).toISOString();
+
+
+    const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0)).toISOString();
+
+    // End of current month in UTC
+    const endOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59, 999)).toISOString();
+
+    const startOfLastMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1)).toISOString();
+    const endOfLastMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 0, 23, 59, 59, 999)).toISOString();;
+
+
+
+let sdate:string="";
+let edate:string="";
+if(qtype==="Last")
+{
+  sdate=startOfLastMonth;
+  edate=endOfLastMonth;
+}
+else
+{
+  sdate=startOfMonth;
+  edate=endOfMonth;
+}
+
+console.log('Date range',sdate,edate)
      
   return useQuery({
-    queryKey: ['Transactions',userId],
+    queryKey: ['Transactions',userId,qtype],
     queryFn: async()=>{
         if(!userId){
          return null;
@@ -485,8 +546,10 @@ export  function useTransactionList() {
  const { data,error } = await supabase
           .from("transactions")
           .select('*').eq('user_id',userId)
+          .gte('xndate', sdate)
+          .lte('xndate', edate)
           //.or(`created_at.gte.${isoToday}`)
-           .order('created_at', { ascending: false });
+           .order('xndate', { ascending: false });
 
 
 
@@ -503,7 +566,7 @@ export  function useTransactionListFor(xnfor:string) {
       const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
     const isoToday = today.toISOString();
-      console.log('xnfor',xnfor)
+     // console.log('xnfor',xnfor)
   return useQuery({
     queryKey: ['Transactions',userId,xnfor],
     queryFn: async()=>{
@@ -518,7 +581,7 @@ export  function useTransactionListFor(xnfor:string) {
           .eq('user_id',userId)
           .eq('xn_for',xnfor)
           //.or(`created_at.gte.${isoToday}`)
-           .order('created_at', { ascending: false });
+           .order('xndate', { ascending: false });
 
 
 
@@ -577,7 +640,7 @@ export  function useTransactionSummary(fromDate:string,toDate:string,expType:str
     //const isoToDate = toDate.toISOString();
 
   return useQuery({
-    queryKey: ['Transactions',userId,expType],
+    queryKey: ['useTransactionSummary',userId,expType],
     queryFn: async()=>{
         if(!userId){
          return null;
@@ -605,15 +668,15 @@ export  function useTransactionSummary(fromDate:string,toDate:string,expType:str
     
   
 }
-export  function useSummaryFor(fromDate:string,toDate:string,exp_for:string) {
+export  function useSummaryFor(fromDate:string,toDate:string,exp_for:string,cache:String) {
     const {session}=useAuth();
     const userId=session?.user.id;
   
     //const isoFromDate = fromDate.toISOString();
     //const isoToDate = toDate.toISOString();
-
+    console.log(fromDate,toDate,exp_for,userId,cache)
   return useQuery({
-    queryKey: ['useSummaryFor',userId,exp_for],
+    queryKey: ['useSummaryFor',,userId,exp_for,cache],
     queryFn: async()=>{
         if(!userId){
          return null;
@@ -621,15 +684,15 @@ export  function useSummaryFor(fromDate:string,toDate:string,exp_for:string) {
        
        
  const { data,error } = await supabase
-          .rpc("get_sumary_by_date", {
-            user_id: userId,
-            input_date_from: fromDate,
-            input_date_to: toDate,
-            exp_for: exp_for
-          })
+           .rpc('get_sumaryfor_by_date', {
+    exp_for:exp_for, 
+    input_date_from:fromDate, 
+    input_date_to:toDate, 
+    userid:userId
+  })
           
           
-
+          console.log('Expense Sum',data,error)
 
         if(error)
         {
@@ -641,6 +704,45 @@ export  function useSummaryFor(fromDate:string,toDate:string,exp_for:string) {
     
   
 }
+
+export  function useSummaryByCatg(fromDate:string,toDate:string,exp_for:string) {
+    const {session}=useAuth();
+    const userId=session?.user.id;
+  
+    //const isoFromDate = fromDate.toISOString();
+    //const isoToDate = toDate.toISOString();
+    console.log(fromDate,toDate,exp_for,userId)
+  return useQuery({
+    queryKey: ['get_sumaryfor_by_catg',userId,exp_for],
+    queryFn: async()=>{
+        if(!userId){
+         return null;
+        }
+       
+       
+ const { data,error } = await supabase
+           .rpc('get_sumaryfor_by_catg', {
+    exp_for:exp_for, 
+    input_date_from:fromDate, 
+    input_date_to:toDate, 
+    userid:userId
+  })
+          
+          
+          console.log('Expense Sum catg',data,error)
+
+        if(error)
+        {
+          console.log(error);
+        }
+        return data;
+    }
+  });
+    
+  
+}
+
+
 
 // 1. Define the interface matching your Postgres TABLE return type
 interface BalanceData {

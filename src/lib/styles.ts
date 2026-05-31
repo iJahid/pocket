@@ -264,7 +264,65 @@ txnType:{
   closeText: {
     fontSize: 20,
     fontWeight: 'bold',
+    
   },
+
+   balanceCard: {
+    marginTop: 5,
+    borderRadius: 5,
+    padding: 24,
+    backgroudColor:'white'
+  },
+
+  balanceLabel: {
+    textAlign:'center' ,
+    fontSize: 15,
+   
+    zIndex:9999,
+   color: '#333',
+    // Text Shadow Styles
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 5,
+  },
+
+  balanceAmount: {
+    color: "#b64f4f",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginTop: -6,
+    
+    borderRadius:10,
+   
+    padding:5,
+    minWidth:100,
+    textAlign:'center',
+    
+    
+    
+
+  },
+
+  balanceRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 0,
+  },
+
+  smallLabel: {
+    color: "#2c2ce6",
+    fontSize: 13,
+  },
+
+  smallAmount: {
+    color: "#f78706",
+    fontSize: 16,
+    fontWeight: "700",
+    marginTop: 5,
+  },
+  ExpSmallButton:{
+    backgroundColor:'#ccddee',padding:5, width:100,borderRadius:2,marginBottom:1
+  }
 
 });
 
