@@ -11,7 +11,7 @@ import { FlatList, Modal, Text, TouchableOpacity, View } from 'react-native'
 
 
 const xpDataAdd1:expDataTypeDB={
-   id:null,
+
     xndate:new Date(),
 category:'Wallet+',
 item:'',    
@@ -33,7 +33,7 @@ const Banks = () => {
   //const [xpData,setXpData]=useState<any[]>([])
   const [xpDataAdd,setXpDataAdd]=useState<expDataTypeDB>()
 
-const {data: xpData}=  useTransactionListFor('XCH')
+const {data: xpData }=  useTransactionListFor('XCH')
 
 
   useEffect(()=>{
@@ -49,7 +49,7 @@ const {data: xpData}=  useTransactionListFor('XCH')
 //console.log('from income',xpData);
 
  setXpDataAdd(xpDataAdd1 as any);
-                     setXpDataAdd(prev => ({ ...prev, user_id: profile?.id }))
+                     setXpDataAdd(prev => ({ ...prev, user_id: profile?.id }) as expDataTypeDB)
   },[])
   
 
@@ -64,7 +64,7 @@ const {data: xpData}=  useTransactionListFor('XCH')
                   
 <FlatList
 data={xpData}
-renderItem={({item})=>(<IncomeItem expData={item} isAdd={false}/>)}
+renderItem={(item)=>(<IncomeItem expData={item } />)}
 />
 
                   

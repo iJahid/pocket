@@ -74,7 +74,24 @@ export type expDataTypeDB{
   
  //id:number | null;
  // $created_at:Date;
-  xndate :Date;
+  xndate :Date | string | undefined;
+  category :string;
+  item :string;
+  amount :number | null;
+  notes :string | null;
+  xninout :number;
+  xntype :string;
+  bankid :number;
+  bank_name :string;
+  user_id:string;
+  xn_for:string | 'XP';
+ // isAdd:boolean;
+}
+export type expDataTypeDBUpdate{
+  
+  id:number ;
+  created_at:Date |string;
+  xndate :Date | string;
   category :string;
   item :string;
   amount :number | null;

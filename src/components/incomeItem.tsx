@@ -1,6 +1,6 @@
 import { useDeleteTransction } from '@/api/orders'
 import { mystyles } from '@/lib/styles'
-import { expDataTypeDB } from '@/types'
+import { expDataTypeDBUpdate } from '@/types'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import dayjs from 'dayjs'
@@ -11,7 +11,7 @@ import IncomeForm from './IncomeForm'
 
 
 
-const IncomeItem = ({expData}:expDataTypeDB) => {
+const IncomeItem = ({expData}:any) => {
 
 
 const [date, setDate] = useState<Date>(new Date());
@@ -22,7 +22,7 @@ const [date, setDate] = useState<Date>(new Date());
   const [selectedCategory, setCategory] = useState(null);
 
 
-  const [xpData,setXpData]=useState<expDataTypeDB>()
+  const [xpData,setXpData]=useState<expDataTypeDBUpdate>()
     const { mutate: deleteTrans,isPending } = useDeleteTransction();
 
 
@@ -35,7 +35,7 @@ const [date, setDate] = useState<Date>(new Date());
 
 
 useEffect(()=>{
-  setXpData(expData)
+  setXpData(expData as expDataTypeDBUpdate)
   
   /*setxDate(expdate)
   setxCategory(category)
