@@ -14,7 +14,8 @@ npm i @react-native-google-signin/google-signin
 npm install @react-native/metro-config --save-dev
 npm install babel-preset-expo --save-dev
 npm install babel-plugin-transform-dynamic-import --save-dev
-
+npm i react-native-autocomplete-dropdown
+npm i react-native-feather
 npx expo install expo-system-ui
 
 CREATE OR REPLACE FUNCTION get_sumary_by_date(input_date_from DATE,input_date_to DATE,exp_type text)
@@ -25,5 +26,33 @@ BEGIN
     FROM transactions
     WHERE xndate >= input_date_from and xndate <= input_date_to
       AND xntype = exp_type;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION get_XNFOR_balance_prs(userId text,xnfor text)
+RETURNS TABLE (item text, balance NUMERIC) AS $$
+BEGIN
+    RETURN QUERY
+    
+        select item, sum(amount*xninout) balance from transactions 
+        WHERE user_id=userId
+        AND xn_for = xnfor
+        group by item;
+   
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION get_xnfor_balance(userId text,xnfor text)
+RETURNS TABLE (neg NUMERIC,pos NUMERIC) AS $$
+BEGIN
+    RETURN QUERY
+    select COALESCE(sum(case when balance<0 then balance else 0 end),0) as neg,COALESCE(sum(case when balance>0 then balance else 0 end),0) as  pos from
+     (
+        select item, sum(amount*xninout) balance from transactions 
+        WHERE user_id=userId
+        AND xn_for = xnfor
+        group by item
+    ) c;
+   
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

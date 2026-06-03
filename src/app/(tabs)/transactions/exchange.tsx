@@ -1,48 +1,39 @@
-import { useTransactionListFor, useUserBalance } from '@/api/orders'
+import { useGroupTransListFor } from '@/api/orders'
 import { mystyles } from '@/lib/styles'
 import { useAuth } from '@/providers/AuthProvider'
-import { expDataTypeDB } from '@/types'
-import IncomeForm from '@components/IncomeForm'
-import IncomeItem from '@components/incomeItem'
+import { xGroupTypeDBAdd } from '@/types'
+import ExchangeForm from '@components/ExchangeForm'
+import ExchangeItem from '@components/exhangeItem'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
+import { Stack } from 'expo-router'
 import React, { useEffect, useState } from 'react'
-import { FlatList, Modal, RefreshControl, Text, TouchableOpacity, View } from 'react-native'
-const xpDataAdd1:expDataTypeDB={
+import { ActivityIndicator, FlatList, Modal, RefreshControl, Text, TouchableOpacity, View } from 'react-native'
+
+
+const xpGroupDataAdd:xGroupTypeDBAdd={
    
-    xndate:new Date(),
-category:'Bazar',
-item:'',    
-amount:null,
-notes:'',
-xntype:'wallet',
-user_id:'',
-bankid:0,
-xn_for:'XP',
-xninout:-1,
-bank_name:'',
+      catg_from:'Cash',
+  catg_to:  'Wallet',  
+  grp_type:'XCH',
+  user_id:'',
+  amount:0,
+  xndate:new Date(),
 
 
 }
 
 
-const Incomes = () => {
+
+const Exchanges = () => {
    
   const {profile}=useAuth();
-  const { data:BalanceData, isLoading, isError:balaceError, error, refetch:refetchBalance } = useUserBalance({
-      userId:profile?.id,// '123e4567-e89b-12d3-a456-426614174000',
-      expenseTypes: ['cash', '-'],
-    });
 
   const [isModalVisible, setModalVisible] = useState(false);
   //const [xpData,setXpData]=useState<any[]>([])
-  const [xpDataAdd,setXpDataAdd]=useState<expDataTypeDB>()
-
-  const today = new Date();
-  const now = new Date();
-  //"2026-05-28T17:59:59.999Z"
+  const [xpDataAdd,setXpDataAdd]=useState<xGroupTypeDBAdd>()
 
 
-const {data: xpData,isRefetching,refetch}=  useTransactionListFor('IN')
+const {data: xpData,isRefetching,refetch,isLoading}=  useGroupTransListFor('XCH')
 
 
 
@@ -57,32 +48,48 @@ const {data: xpData,isRefetching,refetch}=  useTransactionListFor('IN')
 
   useEffect(()=>{
     
-         setXpDataAdd(xpDataAdd1 as any);
-                     setXpDataAdd(prev => ({ ...prev, user_id: profile?.id }))
+     
+ setXpDataAdd(xpGroupDataAdd as any);
+ setXpDataAdd(prev => ({ ...prev, user_id: profile?.id }))
   },[])
   
+if (isLoading) return <ActivityIndicator size="large" />;
+
+
   return (
     <>
-    <View
+   
+<Stack.Screen 
+  options={{
+    headerRight: () => (
+      <Text>Hellp</Text>
+    )
+  }} 
+/>
+ <View
       
-          style={[{backgroundColor:'#fff',borderBottomWidth:1,borderBottomColor:'#cdf',marginTop:5,padding:5}]}
+          style={[{backgroundColor:'#f0f2f5',borderBottomWidth:1,borderBottomColor:'#cdf',marginTop:5,padding:5}]}
         >
-        <View style={mystyles.balanceRow}>
-  
-  
+ 
 
-            <View style={{flex:2,flexDirection:'row',justifyContent:'center',alignContent:'center',alignItems:'center'}}>
-            <FontAwesome name='money' size={24} color={'#72680b'}/>
-            <Text style={[mystyles.balanceLabel,{fontSize:15,padding:5}]}>Cash </Text>
-             <Text style={[mystyles.balanceLabel,{fontSize:25}]}> {(BalanceData?.income ?? 0) -(BalanceData?.expense ?? 0)}</Text>
-            </View> 
-            </View>
-            </View>
-       
-<FlatList
+
+      
+   
+          
+              
+              
+        
+
+            
+             
+
+            
+          </View>
+      
+{<FlatList
 data={xpData}
 renderItem={({item})=>(
-<IncomeItem expData={item} />)}
+<ExchangeItem expData={item} />)}
    contentContainerStyle={{ flexGrow: 1 }}
    
 refreshControl={
@@ -93,7 +100,7 @@ refreshControl={
       }
 keyExtractor={(item) => item.id}  
 
-/>
+/>}
 
 
                   
@@ -130,7 +137,7 @@ keyExtractor={(item) => item.id}
                           <Text style={mystyles.closeText}>✕</Text>
                         </TouchableOpacity>
 
-                           { <IncomeForm inputdata={xpDataAdd} isAdd={true} onClose={() => setModalVisible(false)}/>}
+                            <ExchangeForm inputdata={xpDataAdd} onClose={() => setModalVisible(false)}/>
                                                        
                          </View>
                       
@@ -148,6 +155,6 @@ keyExtractor={(item) => item.id}
   )
 }
 
-export default Incomes
+export default Exchanges
 
 

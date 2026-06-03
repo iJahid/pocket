@@ -216,13 +216,16 @@ export const mystyles = StyleSheet.create({
     
     gap:15,
     backgroundColor: 'white',
-   
+   minHeight:500
    
    
   },
 expInputView:{
    flexDirection:'row',width:'100%',alignContent:'center',alignItems:'center',
-   marginBottom:6
+   marginBottom:6,
+  
+  elevation: 99,       // Required for Android zIndex support
+  overflow: 'visible',
 },
 expInput:{
   width:'80%',
@@ -232,7 +235,8 @@ expInput:{
   height:35,
   padding:1,
   paddingLeft:5,
-  paddingHorizontal: 10
+  paddingHorizontal: 10,
+ 
 },
 txnType:{
   justifyContent:'center',alignItems:'center',
@@ -241,7 +245,7 @@ txnType:{
   margin:4,
   padding:4,
   backgroundColor:'rgba(235, 241, 235, 0.86)',
-  borderWidth:1,borderColor:'rgb(102, 102, 104)',borderRadius:7,
+ borderRadius:7,
 },
   overlay: {
     flex: 1,

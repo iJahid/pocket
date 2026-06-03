@@ -2,9 +2,9 @@
 import { useUserGroupInfo } from '@/api/orders'
 import { orderInsertSubscription } from '@/api/orders/subscription'
 import { useAuth } from '@/providers/AuthProvider'
-import { Link, Redirect } from 'expo-router'
+import { Redirect } from 'expo-router'
 import React, { useEffect, useState } from 'react'
-import { ActivityIndicator, Text, View } from 'react-native'
+import { ActivityIndicator } from 'react-native'
 
 
 
@@ -36,21 +36,10 @@ if(isLoading)
 {
   return <ActivityIndicator size={40}/>
 }
-//console.log('index page group list',grouplist)
-if(!grouplist)
-      {
-        //console.log('redirecting from home page',grouplist)
-        return <Redirect href='/GroupsScreen'/>
-      }
-      if(grouplist.length===0)
-      {
-       // console.log('redirecting from home page',grouplist)
-        return <Redirect href='/GroupsScreen'/>
-      }
- return <View>
-  <Text>Welcome</Text>
-  <Link href={'/(group)/GroupsScreen'}><Text>Group</Text></Link>
- </View>
+
+
+
+ return <Redirect href='/(tabs)/transactions'/>
 }
 
 export default index

@@ -9,57 +9,104 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import dayjs from 'dayjs'
 import React, { useEffect, useState } from 'react'
-import { ActivityIndicator, Alert, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { AutocompleteDropdown, AutocompleteDropdownContextProvider } from 'react-native-autocomplete-dropdown'
 import Collapsible from 'react-native-collapsible'
+import { Dropdown } from 'react-native-element-dropdown'
 type CatgoryList = {
   listitem:string;
 }
 
+/*
+[
+  { label: 'Bazar' },
+  { label: 'Regular' },
+  { label: 'Nasta' },
+  { label: 'Shopping' },
+  { label: 'Bonus' },
+   { label: 'Medicine' },
+     { label: 'Utility' },
+       { label: 'Education' },
+         { label: 'Salary' },
 
-const IncomeForm = ({inputdata,isAdd,onClose}) => {
+];*/
+
+/*
+const ItemList = {[
+{id:'1', title: 'Rice' },
+{ id:'2', title: 'Egg' },
+{ id:'3', title: 'Cigarate' },
+]}
+/*
+{ id:'4', title: 'ChaaPani' },
+{ id:'5', title: 'Bread' },
+{ id:'6', title: 'Coacacola' },
+{ id:'7', title: 'Meat' },
+{ id:'8', title: 'Fish' },
+{ id:'9', title: 'Dithy' },
+{ id:'10', title: 'Myself' },
+{ id:'11', title: 'Dahik' },
+{ id:'12', title: 'Sadit' },
+{ id:'13', title: 'Shabana' },
+{ id:'14', title: 'Suman(CT)' },
+{ id:'15', title: 'AC' },
+{ id:'16', title: 'Grill' },
+{ id:'17', title: 'Chicken' },
+{ id:'18', title: 'Honda' },
+{ id:'19', title: 'Car' },
+{ id:'20', title: 'Other' },
+{ id:'21', title: 'Electric' },
+{ id:'22', title: 'Gas' },
+{ id:'23', title: 'Water' },
+{ id:'24', title: 'Internet' },
+{ id:'25', title: 'Water Filter' },
+{ id:'26', title: 'Sweats' },
+{ id:'27', title: 'Gift' },
+]};
+*/
+
+const ExpenseForm = ({inputdata,isAdd,onClose}) => {
    const [modalVisible, setModalVisible] = useState(false);
-   const [modalVisibleItem, setModalVisibleItem] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
- 
 
+  const dataSet = [
+    { id: '1', title: 'Apples' },
+    { id: '2', title: 'Bananas' },
+    { id: '3', title: 'Cherries' },
+  ];
     const {profile}=useAuth();
-    const [newCategory, setNewCategory] = useState("");
-    const [newItem, setNewItem] = useState("");
+    const [isChecked, setChecked] = useState(true);
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [category, setCategoryIetms] = useState<CatgoryList[]>([]);
 
-    const [itemList,setItemList]=useState<CatgoryList[]>([]);
+    const [itemList,setItemList]=useState();
     const [date, setDate] = useState(new Date());
     const [selectedCategory, setCategory] = useState(null);
     const [isCollapsed, setIsCollapsed] = useState(true);
     const [xpData,setXpData]=useState<expDataTypeDB>()
 
-    const { mutate: createTrans,isPending,isSuccess } = useCreateTrans('IN');
-    const { mutate: updateTrans,isPending:isUpdating } = useUpdateTrans('IN');
+    const { mutate: createTrans,isPending,isSuccess } = useCreateTrans('XP');
+    const { mutate: updateTrans,isPending:isUpdating } = useUpdateTrans('XP');
 
 
     const getCategory=async()=>{
      const {data:catgaroy,error:catgError} =await supabase
                                             .from("datalists")
                                             .select('listitem')
-                                            .eq('list_type','INC')
-                                            .or(`list_type.eq.INC,and(list_type.eq.INC,user_id.eq.${profile?.id})`)
-                                            .order('listitem',{ascending:true});
+                                            .eq('list_type','CATGORY')
+                                            .or(`list_type.eq.CATGORY,and(list_type.eq.CATGORY,user_id.eq.${profile?.id})`);
       console.log(catgaroy,catgError);
      
         if(!catgError)
         {
           setCategoryIetms(catgaroy as any[])
         }
-      
-         const {data:itemList,error:ItemListError} =await supabase
-                                            .from("datalists")
-                                            .select('listitem')
-                                            .eq('list_type','INCD')
-                                            .or(`list_type.eq.INCD,and(list_type.eq.INCD,user_id.eq.${profile?.id})`)
-                                            .order('listitem',{ascending:true});
- 
-        setItemList(itemList as any);
+      const arr =  catgaroy?.map(item => ({
+       id: String(item.listitem),
+        title: item.listitem
+  }));
+  setItemList(arr as any)
+  console.log('ItemList',arr)
 
       
     }
@@ -72,7 +119,8 @@ useEffect(()=>{
   if(inputdata?.xntype==='bank'){
     setIsCollapsed(false)
   }
-
+  if(isAdd==false)
+    {setChecked(false)}
 
   
 },[])
@@ -136,47 +184,9 @@ const UpdateExpenses=async(id)=>{
 
 }
 
-
-
-const CreateCatg=async ()=>{
-  console.log(newCategory);
-    if(newCategory.trim()==='')
-  {
-    Alert.alert('Error', 'Please enter a category name');
-    return;
-  }
-  const {error}= await supabase.from("datalists").insert({
-    listitem:newCategory,
-    list_type:'CATGORY',
-    user_id:profile?.id
-  }).select()
-  console.log(error)
-  getCategory();
-}
-
-const CreateItem=async()=>{
-  console.log(newItem);
-    if(newItem.trim()==='')
-  {
-    Alert.alert('Error', 'Please enter an Income Source name');
-    return;
-  }
-   
-  const {error}= await supabase.from("datalists").insert({
-    listitem:newItem,
-    list_type:'ITEM',
-    user_id:profile?.id
-  }).select()
-  console.log(error)
-  getCategory();
-}
-
-
-
-
   return (
     <>
-   
+    <AutocompleteDropdownContextProvider>
     <View style={[mystyles.modalView,{gap:5,overflow:'visible',minHeight:400}]}>
       <View style={mystyles.expInputView}>
         <TouchableOpacity      onPress={() =>{setShowDatePicker(true)} }   >
@@ -211,22 +221,80 @@ const CreateItem=async()=>{
       {/*Category Row*/}
       <View style={mystyles.expInputView}>
         <Text style={{width:'25%'}}>Category : </Text>
-        <TouchableOpacity style={{width:'100%'}} onPress={()=>setModalVisible(true)}>
-          <TextInput value={ xpData?.category } style={mystyles.expInput} editable={false} 
-                    onChangeText={(value) => setXpData(prev => ({ ...prev, category: value }))}></TextInput>
-        </TouchableOpacity>
-        
+        <Dropdown
+          data={category}
+          labelField="listitem"
+          valueField="listitem"
+          search={false}
+          placeholder="Select Category"
+          value={xpData?.category}
+          style={mystyles.expInput}
+          onChange={value => setXpData(prev => ({ ...prev, category: value.listitem }))}
+        />
       </View>
 
 
 
       {/*Item Row*/}
-     <View style={mystyles.expInputView}>
-        <Text style={{width:'25%'}}>Source : </Text>
-        <TouchableOpacity style={{width:'100%'}} onPress={()=>setModalVisibleItem(true)}>
-          <TextInput value={ xpData?.item }  style={mystyles.expInput} editable={false} 
-                    onChangeText={(value) => setXpData(prev => ({ ...prev, item: value }))}></TextInput>
-        </TouchableOpacity>
+      <View style={mystyles.expInputView}>
+        <Text style={{width:'25%'}}>Item : </Text>
+        
+        
+            <View style={{overflow:'visible'}}>
+              
+
+              <AutocompleteDropdown
+                dataSet={itemList}
+                clearOnFocus={false}
+                closeOnBlur={true}
+                closeOnSubmit={false}
+                direction='down'
+                initialValue={{ id: 'Rice' }}
+                onSelectItem={(item) => {
+                        if (item) {
+                                  setXpData(prev => ({ ...prev, item: item.title }))
+                                  console.log("Selected Item:", xpData);
+                            }
+                            }
+                  }
+                
+                suggestionsListMaxHeight={150}
+                textInputProps={{
+                              placeholder: "Type Item name...",
+                              autoCorrect: true,
+                              autoCapitalize: "none",
+                              style: {
+                                borderWidth: 1,
+                                borderColor: "#ccc",
+                                borderRadius: 8,
+                                paddingHorizontal: 15,
+                                height: 50,
+
+                                backgroundColor: "#fdfdfd",
+                                width: 205,
+                            
+                              }
+                            }}
+                suggestionsListContainerStyle={{
+                   
+                      left:-15,
+                       elevation:9999,
+                       zIndex:99999,
+                        backgroundColor:'rgba(61, 5, 5, 0.87)',
+                        marginTop:30
+                        
+                      }}
+                    // optional styling
+                    suggestionsListTextStyle={{
+                      fontSize: 14,
+                       color: '#faf7f7'
+                    }}
+                                                
+              />
+
+            
+            </View>
+        
         
       </View>
 
@@ -319,87 +387,7 @@ const CreateItem=async()=>{
     </View>
 
                            
-     <Modal
-        animationType="slide"
-        transparent={false}
-        visible={modalVisible}
-        presentationStyle="fullScreen" // Crucial for iOS full screen
-        onRequestClose={() => setModalVisible(false)} // Handles Android back button
-      >
-        <Text style={{fontSize:25,padding:5,marginTop:10,color:'green'}}>Income Source Category</Text>
-        <View style={[styles.modalView,{flex:1}]}>
-          <FlatList
-          data={category}
-          renderItem={({item})=>
-          (
-          <TouchableOpacity style={{flex:1,borderWidth:0.5,borderColor:'#ccdd',padding:8,width:600}}
-          onPress={() =>{ 
-            console.log(item);
-            setXpData(prev => ({ ...prev, category: item.listitem }))
-            setModalVisible(false)
-            }}>
-          <Text style={{fontSize:16,paddingLeft:15}}>{item.listitem}</Text>
-          </TouchableOpacity>
-          )}
-          
-          
-          />
-           <View style={{padding:10}}><Text style={{color:'blue',fontStyle:'italic'}}>Not In The List Add New</Text>
-          <View style={{flexDirection:'row',gap:6}}>
-            <TextInput placeholder='New Category' style={{borderWidth:0.5,borderColor:'#ccdd',width:250,marginLeft:30}}
-            value={newCategory} onChangeText={(value)=>setNewCategory(value)}/>
-            <TouchableOpacity onPress={()=>CreateCatg()}><FontAwesome name='plus-circle' size={35} color={'green'}/></TouchableOpacity>
-
-          </View>
-          
-          </View>
-          <TouchableOpacity style={styles.button} onPress={() => setModalVisible(false)}>
-            <Text style={styles.textStyle}>Close</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
-      
-      
-       <Modal
-        animationType="slide"
-        transparent={false}
-        visible={modalVisibleItem}
-        presentationStyle="fullScreen" // Crucial for iOS full screen
-        onRequestClose={() => setModalVisibleItem(false)} // Handles Android back button
-      >
-        <View style={[styles.modalView,{flex:1}]}>
-          
-      <Text style={{fontSize:25,padding:5,marginTop:10,color:'green'}}>Income Source Name</Text>
-          <FlatList
-          data={itemList}
-          renderItem={({item})=>
-          (
-          <TouchableOpacity style={{flex:1,borderWidth:0.5,borderColor:'#ccdd',padding:8,width:600}}
-          onPress={() =>{ 
-            console.log(item);
-            setXpData(prev => ({ ...prev, item: item.listitem }))
-            setModalVisibleItem(false)
-            }}>
-          <Text style={{fontSize:16,paddingLeft:15}}>{item.listitem}</Text>
-          </TouchableOpacity>
-          )}
-          
-          
-          />
-          <View style={{padding:10}}><Text style={{color:'blue',fontStyle:'italic'}}>Not In The List Add New</Text>
-          <View style={{flexDirection:'row',gap:6}}>
-            <TextInput placeholder='New Item' style={{borderWidth:0.5,borderColor:'#ccdd',width:300}}
-            value={newItem} onChangeText={(value)=>setNewItem(value)}/>
-            <TouchableOpacity onPress={()=>CreateItem()}><FontAwesome name='plus-circle' size={35} color={'green'}/></TouchableOpacity>
-
-          </View>
-          
-          </View>
-          <TouchableOpacity style={styles.button} onPress={() => setModalVisibleItem(false)}>
-            <Text style={styles.textStyle}>Close</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
+   </AutocompleteDropdownContextProvider>                           
 
         
    
@@ -409,40 +397,11 @@ const CreateItem=async()=>{
   )
 }
 
-export default IncomeForm
+export default ExpenseForm
 
 const styles = StyleSheet.create({
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalView: {
-    flex: 1, // Ensures content takes up all available space
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  button: {
-    backgroundColor: '#2196F3',
-    padding: 15,
-    borderRadius: 8,
-  },
-  textStyle: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  modalText: {
-    marginBottom: 15,
-    fontSize: 20,
-  },
-   searchBar: {
-    height: 45,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    marginVertical: 16,
-    fontSize: 16,
-  },
+  screen: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center' },
+  modalContainer: { backgroundColor: 'white', margin: 20, padding: 20, borderRadius: 10, minHeight: 300 },
+  modalTitle: { fontSize: 18, marginBottom: 15, fontWeight: 'bold' }
 });

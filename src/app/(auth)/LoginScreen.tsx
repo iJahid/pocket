@@ -1,9 +1,6 @@
 import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/providers/AuthProvider';
-import {
-  GoogleSignin,
-  statusCodes
-} from '@react-native-google-signin/google-signin';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+
 import * as WebBrowser from "expo-web-browser";
 
 import { Link, router, Stack } from 'expo-router';
@@ -14,32 +11,34 @@ import { ActivityIndicator, Alert, Keyboard, KeyboardAvoidingView, StyleSheet, T
 WebBrowser.maybeCompleteAuthSession();
 
 
-
-
-const SignIn = () => {
-
 GoogleSignin.configure({
-  offlineAccess: true,
-  webClientId:"131936964337-tv15jctl4cin8fl9pmi02c5av218gsfe.apps.googleusercontent.com"
+  //offlineAccess: true,
+  //webClientId:"131936964337-tv15jctl4cin8fl9pmi02c5av218gsfe.apps.googleusercontent.com"
  
-  //webClientId:"131936964337-v75fh8gb1jbuo5n554a6l1hotl2vd036.apps.googleusercontent.com" // process.env.EXPO_PUBLIC_GOOGLE_WEB_ID!, // Found in Google Cloud Console
+  webClientId:"131936964337-nvmeg2q3j48orr7jvoprvjk0h2fucs7r.apps.googleusercontent.com" // process.env.EXPO_PUBLIC_GOOGLE_WEB_ID!, // Found in Google Cloud Console
   
 });
 
 
+const SignIn = () => {
 
-  const {session}=useAuth();
+
+
+
+ // const {session}=useAuth();
     const [email, setEmail] = React.useState('')
     const [password, setPassword] = React.useState('')
-    const [error, setError] = React.useState('')
+    const [error1, setError] = React.useState('')
   const [loading, setLoading] = React.useState(false)
+ 
+ 
   if(loading){
         return (
           <ActivityIndicator/>
         )
         
     }
-/*
+
 async function signInWithGoogle() {
   try {
     await GoogleSignin.hasPlayServices();
@@ -50,16 +49,19 @@ async function signInWithGoogle() {
         provider: 'google',
         token: userInfo.data.idToken,
       });
-      return { data, error };
+      if(data){
+        router.replace('/(tabs)')
+      }
+ //     return { data, error };
     } else {
       throw new Error('no ID token present!');
     }
   } catch (error) {
     console.error(error);
   }
-}*/
+}
 
-
+/*
 const signInWithGoogle = async () => {
   try {
           await GoogleSignin.hasPlayServices()
@@ -75,7 +77,7 @@ const signInWithGoogle = async () => {
             if(data){
               router.push('/(tabs)')
             }
-          }*/
+          }
         } catch (error: any) {
           if (error.code === statusCodes.IN_PROGRESS) {
             // operation (e.g. sign in) is in progress already
@@ -84,7 +86,7 @@ const signInWithGoogle = async () => {
           } else {
             // some other error happened
           }
-          console.log('error',error)
+          console.log('error',error,statusCodes,error.code)
         }
 }
 /*
@@ -151,14 +153,15 @@ const signInWithGoogle = async () => {
 
     }
   
-const resetPass=async()=>{
+/*const resetPass=async()=>{
   const { data, error } = await supabase.auth.resetPasswordForEmail('jahidtrek@gmail.com', {
   redirectTo: `${window.location.origin}/reset-password`, // This must match your deep link configuration
   
 });
 console.log(data,error)
-}
+}*/
   
+
   return (
      <View style={styles.containerView}>
       <Stack.Screen  options={{title: 'Sign In'}} />
@@ -185,7 +188,7 @@ console.log(data,error)
             />
             <TouchableOpacity
               style={{justifyContent:'flex-end',width:'100%',alignItems:'flex-end'}}
-              onPress={()=>resetPass()}
+              
 
               
             ><Text style={{ fontSize: 14,color:'rgb(177, 134, 17)',alignContent:'flex-end'}}>Forgot Password</Text></TouchableOpacity>
@@ -196,7 +199,7 @@ console.log(data,error)
             ><Text style={{padding:5,fontSize:18,fontWeight:800}}>Login</Text></TouchableOpacity>
             <TouchableOpacity
               style={styles.fbLoginButton}
-              onPress={()=>signInWithGoogle()}
+              
               
               
             ><Text style={{ fontSize: 14}}>Login With Google</Text></TouchableOpacity>

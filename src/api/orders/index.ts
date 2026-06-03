@@ -437,9 +437,11 @@ export const useCreateTrans=(expType:string)=>{
     //  console.log('reqest data',xdata)
         const {data,error}=  await supabase
            .from('transactions')
-           .insert(xdata).select('*').maybeSingle()
+           .insert(
+           xdata
+           ).select('*').maybeSingle()
           
-          console.log('after create',data);
+          console.log('after create',error,JSON.stringify(data,null,2));
     return data;
 
  },
@@ -447,8 +449,14 @@ export const useCreateTrans=(expType:string)=>{
     // Invalidate and refetch
     //console.log('success creating Transaction');
     await queryClient.invalidateQueries({ queryKey: ['Transactions',userId,expType] });
-     await queryClient.invalidateQueries({ queryKey: ['userBalance',userId] });
+      await queryClient.invalidateQueries({ queryKey: ['userBalance',userId,['cash','-']] });
+    await queryClient.invalidateQueries({ queryKey: ['userBalance',userId,['wallet','-']] });
      await queryClient.invalidateQueries({ queryKey: ['useTransactionSummary',userId,expType] });
+await queryClient.invalidateQueries({ queryKey: ['get_xnfor_balance_prs',userId,expType] });
+await queryClient.invalidateQueries({ queryKey: ['useBalanceXNFor',userId,expType] });
+ 
+
+
  },
   onError(error:any){
     console.error('Error creating Transactions:', error);
@@ -491,7 +499,8 @@ export const useUpdateTrans = (expType:string) => {
     async onSuccess() {
        console.log('success Updated Transaction');
        await queryClient.invalidateQueries({ queryKey: ['Transactions',userId,expType] });
-       await queryClient.invalidateQueries({ queryKey: ['userBalance',userId] });
+        await queryClient.invalidateQueries({ queryKey: ['userBalance',userId,['cash','-']] });
+    await queryClient.invalidateQueries({ queryKey: ['userBalance',userId,['wallet','-']] });
     
     },
   });
@@ -547,7 +556,7 @@ console.log('Date range',sdate,edate)
           .from("transactions")
           .select('*').eq('user_id',userId)
           .gte('xndate', sdate)
-          .lte('xndate', edate)
+          .lte('xndate', edate).neq('xn_for','XCH')
           //.or(`created_at.gte.${isoToday}`)
            .order('xndate', { ascending: false });
 
@@ -596,7 +605,41 @@ export  function useTransactionListFor(xnfor:string) {
   
 }
 
+export  function useGroupTransListFor(xnfor:string) {
+    const {session}=useAuth();
+    const userId=session?.user.id;
+      const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    const isoToday = today.toISOString();
+     // console.log('xnfor',xnfor)
+  return useQuery({
+    queryKey: ['GroupTransListFor',userId,xnfor],
+    queryFn: async()=>{
+        if(!userId){
+         return null;
+        }
+       
+       
+ const { data,error } = await supabase
+          .from("transgroup")
+          .select('*')
+          .eq('user_id',userId)
+          .eq('grp_type',xnfor)
+          //.or(`created_at.gte.${isoToday}`)
+           .order('xndate', { ascending: false });
 
+
+
+        if(error)
+        {
+          console.log(error);
+        }
+        return data;
+    }
+  });
+    
+  
+}
 export const useDeleteTransction=()=>{
        const {session}=useAuth();
     const userId=session?.user.id;
@@ -604,7 +647,7 @@ export const useDeleteTransction=()=>{
  return   useMutation({
 
   
-    async mutationFn(id:number){
+    async mutationFn(id:number|undefined){
       console.log(' Delete ID',id);
       await supabase
       .from('transactions')
@@ -618,7 +661,8 @@ export const useDeleteTransction=()=>{
     // Invalidate and refetch
     console.log('sucessfully Deleted');
     await queryClient.invalidateQueries({ queryKey: ['Transactions',useId] });
-    await queryClient.invalidateQueries({ queryKey: ['userBalance',userId] });
+      await queryClient.invalidateQueries({ queryKey: ['userBalance',userId,['cash','-']] });
+    await queryClient.invalidateQueries({ queryKey: ['userBalance',userId,['wallet','-']] });
     
  },
   onError(error:any){
@@ -763,14 +807,14 @@ interface BalanceData {
 }
 
 interface UseBalanceProps {
-  userId: string;
+  userId: string ;
   expenseTypes: string[];
 }
 
 export function useUserBalance({ userId, expenseTypes }: UseBalanceProps) {
   return useQuery<BalanceData | null, Error>({
     // Keep your queryKey synchronized with your dependencies
-    queryKey: ['userBalance', userId],
+    queryKey: ['userBalance', userId,expenseTypes],
     
     queryFn: async () => {
       // Guard clause to prevent unnecessary calls if userId is empty
@@ -863,3 +907,181 @@ export const  getUserBalance=async ( expenseTypes: string[]) =>{
     return null;
   }
 }
+
+
+export const useDeleteGroupTrans=(xnfor:string)=>{
+       const {session}=useAuth();
+    const userId=session?.user.id;
+  const queryClient = useQueryClient();
+ return   useMutation({
+
+  
+    async mutationFn(id:number|undefined){
+      console.log(' Delete ID',id);
+      await supabase
+      .from('transactions')
+      .delete()
+      .eq('xn_group',id);
+
+      await supabase
+      .from('transgroup')
+      .delete()
+      .eq('id',id);
+   
+
+    }
+    
+    ,
+ async onSuccess(){
+    // Invalidate and refetch
+    console.log('sucessfully Deleted');
+    await queryClient.invalidateQueries({ queryKey: ['GroupTransListFor',userId,xnfor] });
+    await queryClient.invalidateQueries({ queryKey: ['userBalance',userId,['cash','-']] });
+    await queryClient.invalidateQueries({ queryKey: ['userBalance',userId,['wallet','-']] });
+    
+ },
+  onError(error:any){
+    console.error('Error creating order:', error);
+    Alert.alert('Error', 'Failed to Delete order. Please try again.');
+ }
+ }
+
+
+)
+}
+
+
+export const useCreateGroupTrans=(expType:string)=>{
+  const queryClient = useQueryClient();
+   const {session}=useAuth();
+    const userId=session?.user.id;
+
+ return   useMutation({
+    async mutationFn(xdata:any){
+
+     console.log('reqest data',xdata)
+        const {data,error}=  await supabase
+           .from('transgroup')
+           .insert(xdata).select('*').maybeSingle()
+          
+          console.log('after create',data,error);
+
+
+           const {data:trans1,error:trnsserr1}=  await supabase
+           .from('transactions')
+           .insert({
+            user_id:userId,
+            xndate:xdata.xndate,
+            category:xdata.catg_from,
+            item:xdata.catg_to,
+            amount:xdata.amount,
+            xn_for:expType,
+            xn_group:data.id,
+            xninout:-1,
+            xntype:xdata.catg_from
+           }).select('*').maybeSingle()
+
+            const {data:trans2,error:trnsserr2}=  await supabase
+           .from('transactions')
+           .insert({
+            user_id:userId,
+            xndate:xdata.xndate,
+            category:xdata.catg_to,
+            item:xdata.catg_from,
+            amount:xdata.amount,
+            xn_for:expType,
+            xn_group:data.id,
+            xninout:1,
+            xntype:xdata.catg_to
+           }).select('*').maybeSingle()
+          
+          console.log('after create',trans2,trans2);
+    return data;
+
+ },
+ async onSuccess(){
+    // Invalidate and refetch
+    //console.log('success creating Transaction');
+    await queryClient.invalidateQueries({ queryKey: ['GroupTransListFor',userId,expType] });
+       await queryClient.invalidateQueries({ queryKey: ['userBalance',userId,['cash','-']] });
+    await queryClient.invalidateQueries({ queryKey: ['userBalance',userId,['wallet','-']] });
+  
+ },
+  onError(error:any){
+    console.error('Error creating Transactions:', error);
+    Alert.alert('Error', 'Failed to create Transaction. Please try again.',error);
+ }
+
+})
+
+}
+
+
+export function useBalanceXNFor({ userId, xnfor }: { userId: string | undefined; xnfor: string }) {
+  return useQuery({
+    // Keep your queryKey synchronized with your dependencies
+    queryKey: ['useBalanceXNFor', userId,xnfor],
+    
+    queryFn: async () => {
+      // Guard clause to prevent unnecessary calls if userId is empty
+      if (!userId) return null;
+
+      const { data, error } = await supabase
+                            .rpc('get_xnfor_balance', {
+                                              userid: userId,
+                                              xnfor: xnfor 
+                                            });
+
+                                            console.log(data,error)
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      // RETURNS TABLE always returns an array of objects
+      if (data && data.length > 0) {
+        return data[0] ;
+      }
+
+      return { neg: 0, pos: 0 };
+    },
+    // Optional: Prevent fetching if arguments aren't valid yet
+    enabled: !!userId && xnfor.length > 0, 
+  });
+}
+
+
+export  function useLoanSumPrs(xn_for:string) {
+    const {session}=useAuth();
+    const userId=session?.user.id;
+  
+    //const isoFromDate = fromDate.toISOString();
+    //const isoToDate = toDate.toISOString();
+    
+  return useQuery({
+    queryKey: ['get_xnfor_balance_prs',userId,xn_for],
+    queryFn: async()=>{
+        if(!userId){
+         return null;
+        }
+       
+       
+ const { data,error } = await supabase
+           .rpc('get_xnfor_balance_prs', {
+  userid: userId,
+  xnfor: xn_for 
+  })
+          
+          
+          console.log('Loan Sum catg',data,error)
+
+        if(error)
+        {
+          console.log(error);
+        }
+        return data;
+    }
+  });
+    
+  
+}
+

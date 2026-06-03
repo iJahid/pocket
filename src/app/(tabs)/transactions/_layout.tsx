@@ -17,7 +17,7 @@ export default function TransactionTabs() {
         <TopTabs.Screen name="index" options={{ title: 'All' }} />
         <TopTabs.Screen name="incomes" options={{ title: 'Income' }} />
         <TopTabs.Screen name="loans" options={{ title: 'Loan' }} />
-        <TopTabs.Screen name="banks" options={{ title: 'Exchange' }} />
+        <TopTabs.Screen name="exchange" options={{ title: 'Exchange' }} />
       </TopTabs>
       </View>
     

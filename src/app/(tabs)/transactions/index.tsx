@@ -61,11 +61,6 @@ const {data: ThisMonthExpense,error:summaryError,refetch:refetchSumFor}=  useSum
 const {data: LastMonthExpense,error:summaryErrorL,refetch:refetchSumForL}=  useSummaryFor(startOfLastMonth,endOfLastMonth,'XP','Lastmonth')
 const {data: ThisMonthExpenseCatg,error:summaryCatgError,refetch:refetchSumCatg}=  useSummaryByCatg(startOfMonth,endOfMonth,'XP')
 
-//const {data: summaryData,isRefetching: isSummaryRefetching,refetch: refetchSummary  }=  useTransactionSummary(startOfToday,endOfToday,['wallet'])
-//const {data: summaryDataMonth,isRefetching: isSummaryRefetchingMonth,refetch: refetchSummaryMonth  }=  useTransactionSummary(startOfMonth,endOfMonth,['wallet'])
-//const {data: balanceData,isRefetching: isBalanceRefetching,refetch: refetchBalance  }=  useTransactionBalance(['wallet','-'])
-
-
 
 
 
@@ -99,20 +94,18 @@ const {data: ThisMonthExpenseCatg,error:summaryCatgError,refetch:refetchSumCatg}
 if (isLoading) return <ActivityIndicator size="large" />;
   if (balaceError) return <Text>Error: {error.message}</Text>;
   if(summaryError) return <Text>Error: {summaryError.message}</Text>;
-   if(summaryErrorL) return <Text>Error: {summaryErrorL.message}</Text>;
-  
+  if(summaryErrorL) return <Text>Error: {summaryErrorL.message}</Text>;
+//if (!ThisMonthExpense || !LastMonthExpense || !ThisMonthExpenseCatg) return <ActivityIndicator size="small" />;
   return (
     <>
    
- <Stack.Screen options={{headerRight:()=>{
-  {/* Balance Card */}
-      return(
-        
-        <Text>Hellp</Text>
-        )
-
-
- }}}                 />
+<Stack.Screen 
+  options={{
+    headerRight: () => (
+      <Text>Hellp</Text>
+    )
+  }} 
+/>
  <View
       
           style={[{backgroundColor:'#f0f2f5',borderBottomWidth:1,borderBottomColor:'#cdf',marginTop:5,padding:5}]}
@@ -129,15 +122,20 @@ if (isLoading) return <ActivityIndicator size="large" />;
 
             <View>
               <Text style={mystyles.balanceLabel}>This Month Expense</Text>
-
-              <Text style={mystyles.balanceAmount}>{-(ThisMonthExpense[0]?.income ?? 0) +(ThisMonthExpense[0]?.expense ?? 0)}</Text>
+              
+              <Text style={mystyles.balanceAmount}>  {
+              ThisMonthExpense && ThisMonthExpense.length > 0
+      ? (-(ThisMonthExpense[0].income ?? 0) + (ThisMonthExpense[0].expense ?? 0))
+      : 0}</Text>
                    
             </View>
             <View>
             
               <Text style={mystyles.balanceLabel}>Last Month</Text>
                 <TouchableOpacity  onPress={()=>router.push('/(group)/lastMOnthExpense')}>
-                  <Text style={mystyles.balanceAmount}>{-(LastMonthExpense[0]?.income ?? 0) +(LastMonthExpense[0]?.expense ?? 0)}</Text>
+                  <Text style={mystyles.balanceAmount}>  {LastMonthExpense && LastMonthExpense.length > 0
+      ? (-(LastMonthExpense[0].income ?? 0) + (LastMonthExpense[0].expense ?? 0))
+      : 0}</Text>
                   </TouchableOpacity>
             </View>
           
@@ -146,24 +144,32 @@ if (isLoading) return <ActivityIndicator size="large" />;
 
       
     <View style={mystyles.balanceRow}>
-          <FlatList
-           data={ThisMonthExpenseCatg}
-           renderItem={({ item }) => {
-    
-            
-              return <View>
-              <Text style={mystyles.smallLabel}>{item.category}</Text>
-              <Text style={mystyles.smallAmount}>{
-              
-              (item.category==='Regular')? `${Math.ceil(item.expense/30)}/Day `:`${item.expense}`
-              }</Text>
-              </View>
-            
-          }}
-          horizontal={true} // Enables horizontal scrolling
-          keyExtractor={(item) => item.category}
-          contentContainerStyle={{gap:14,paddingRight:5}}
-          />
+          { <FlatList
+    data={Array.isArray(ThisMonthExpenseCatg) ? ThisMonthExpenseCatg : []} 
+    renderItem={({ item }) => {
+      // If the item itself is somehow an object containing a transaction structure, skip rendering it to prevent the crash
+      if (!item || typeof item !== 'object' || 'xndate' in item) {
+        return null;
+      }
+
+      const categoryName = typeof item.category === 'object' ? 'Unknown' : (item.category ?? 'N/A');
+      const expenseAmount = typeof item.expense === 'object' ? 0 : (item.expense ?? 0);
+
+      return (
+        <View>
+          <Text style={mystyles.smallLabel}>{categoryName}</Text>
+          <Text style={mystyles.smallAmount}>
+            {categoryName === 'Regular'
+              ? `${Math.ceil(expenseAmount / now.getDay())}/day `
+              : `${expenseAmount}`}
+          </Text>
+        </View>
+      );
+    }}
+    horizontal={true} 
+    keyExtractor={(item, index) => (item && item.category ? String(item.category) : String(index))}
+    contentContainerStyle={{ gap: 14, paddingRight: 5 }}
+  />}
           </View>   
           <View style={mystyles.balanceRow}>
          
@@ -178,7 +184,7 @@ if (isLoading) return <ActivityIndicator size="large" />;
             
           </View>
         </View>
-<FlatList
+{<FlatList
 data={xpData}
 renderItem={({item})=>(
 <ExpenseItem expData={item} />)}
@@ -190,9 +196,9 @@ refreshControl={
           onRefresh={refetch} 
         />
       }
-  
+keyExtractor={(item) => item.id}  
 
-/>
+/>}
 
 
                   
@@ -222,14 +228,14 @@ refreshControl={
 
       <Modal visible={isModalVisible} transparent={true} animationType="slide">
                       <View style={mystyles.overlay}>
-                       <View style={mystyles.modalContent}>
+                       <View style={[mystyles.modalContent,{overflow:'auto',minHeight:550}]}>
                                                 
                                                
                         <TouchableOpacity style={mystyles.closeButton} onPress={() => setModalVisible(false)}>
                           <Text style={mystyles.closeText}>✕</Text>
                         </TouchableOpacity>
 
-                            <ExpenseForm inputdata={xpDataAdd} isAdd={true} onClose={() => setModalVisible(false)}/>
+                           { <ExpenseForm inputdata={xpDataAdd} isAdd={true} onClose={() => setModalVisible(false)}/>}
                                                        
                          </View>
                       

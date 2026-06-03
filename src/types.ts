@@ -70,7 +70,7 @@ bankID:string;
 isAdd:boolean;
 }
 
-export type expDataTypeDB{
+export type expDataTypeDB={
   
  //id:number | null;
  // $created_at:Date;
@@ -81,13 +81,14 @@ export type expDataTypeDB{
   notes :string | null;
   xninout :number;
   xntype :string;
-  bankid :number;
-  bank_name :string;
+  bankid :number | null;
+  bank_name :string | null;
   user_id:string;
   xn_for:string | 'XP';
+  xn_group:string | null;
  // isAdd:boolean;
 }
-export type expDataTypeDBUpdate{
+export type expDataTypeDBUpdate={
   
   id:number ;
   created_at:Date |string;
@@ -102,5 +103,26 @@ export type expDataTypeDBUpdate{
   bank_name :string;
   user_id:string;
   xn_for:string | 'XP';
+  xn_group:string | null;
  // isAdd:boolean;
+}
+
+export type xGroupTypeDBUpdate={
+  id:number ;
+  catg_from:string;
+  catg_to:  string;  
+  grp_type:string;
+  user_id:string;
+  amount:number;
+  xndate:Date | string;
+}
+
+export type xGroupTypeDBAdd={
+
+  catg_from:string;
+  catg_to:  string;  
+  grp_type:string;
+  user_id:string;
+  amount:number;
+  xndate:Date | string;
 }

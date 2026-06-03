@@ -6,10 +6,10 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import dayjs from 'dayjs'
 import React, { useState } from 'react'
 import { ActivityIndicator, Modal, Text, TouchableOpacity, View } from 'react-native'
-import ExpenseForm from './ExpenseForm'
+import LoanForm from './LoanForm'
 
 //  Fixed: Explicitly typed the incoming prop object structure
-const ExpenseItem = ({ expData }: { expData: expDataTypeDBUpdate }) => {
+const LoanItems = ({ expData }: { expData: expDataTypeDBUpdate }) => {
 
   const [isModalVisible, setModalVisible] = useState(false);
   const { mutate: deleteTrans, isPending } = useDeleteTransction();
@@ -74,7 +74,7 @@ const ExpenseItem = ({ expData }: { expData: expDataTypeDBUpdate }) => {
               <Text style={mystyles.closeText}>✕</Text>
             </TouchableOpacity>
 
-            <ExpenseForm inputdata={expData} isAdd={false} onClose={() => setModalVisible(false)} />
+            <LoanForm inputdata={expData} isAdd={false} onClose={() => setModalVisible(false)} />
           </View>
         </View>
       </Modal>
@@ -82,4 +82,4 @@ const ExpenseItem = ({ expData }: { expData: expDataTypeDBUpdate }) => {
   )
 }
 
-export default ExpenseItem
+export default LoanItems
