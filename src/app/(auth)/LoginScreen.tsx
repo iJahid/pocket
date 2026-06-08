@@ -15,9 +15,9 @@ WebBrowser.maybeCompleteAuthSession();
 /*
 GoogleSignin.configure({
   //offlineAccess: true,
-  //webClientId:"131936964337-tv15jctl4cin8fl9pmi02c5av218gsfe.apps.googleusercontent.com"
+  
  
-  webClientId:"131936964337-nvmeg2q3j48orr7jvoprvjk0h2fucs7r.apps.googleusercontent.com" // process.env.EXPO_PUBLIC_GOOGLE_WEB_ID!, // Found in Google Cloud Console
+  webClientId:process.env.EXPO_PUBLIC_GOOGLE_WEB_ID!, // Found in Google Cloud Console
   
 });
 
