@@ -48,13 +48,13 @@ export default function TabLayout() {
         headerRight:()=>(
       <>
         <TouchableOpacity style={{padding:10}}
-        onPress={()=>router.push('/GroupsScreen')}><FontAwesome name='users' size={20} />
+        onPress={()=>router.push('/(group)/GroupsScreen')}><FontAwesome name='users' size={20} />
         </TouchableOpacity>
         <TouchableOpacity style={{padding:10}}
-        onPress={()=>router.push('./InvitationsScreen')}><FontAwesome name='bell-o' size={20} />
+        onPress={()=>router.push('/(group)/InvitationsScreen')}><FontAwesome name='bell-o' size={20} />
         </TouchableOpacity>
         <TouchableOpacity style={{padding:10}}
-        onPress={()=>router.push('/profile')}><FontAwesome name='gears' size={20} />
+        onPress={()=>router.push('/(group)/profile')}><FontAwesome name='gears' size={20} />
         </TouchableOpacity>
         </>  
       )
@@ -63,6 +63,16 @@ export default function TabLayout() {
  <Tabs.Screen
         name="index"  
         options={{ href:null}} />
+  <Tabs.Screen
+        name="dashboard" 
+        options={{
+          title:"Dashboard",
+        tabBarIcon:()=>(<FontAwesome  name='dashboard' size={25} style={{color:'#055757'}}/>),
+          
+      }}        
+        
+        />
+ 
         <Tabs.Screen
         name="transactions" 
         options={{

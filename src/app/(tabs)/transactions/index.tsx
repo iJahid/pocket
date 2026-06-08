@@ -41,6 +41,7 @@ const Expenses = () => {
 
   const today = new Date();
   const now = new Date();
+  const theDyaNum=today.getDate();
   //"2026-05-28T17:59:59.999Z"
 const startOfToday = new Date(today.setHours(0, 0, 0, 0)).toISOString();
 const endOfToday = new Date(today.setHours(23, 59, 59, 999)).toISOString();
@@ -108,20 +109,20 @@ if (isLoading) return <ActivityIndicator size="large" />;
 />
  <View
       
-          style={[{backgroundColor:'#f0f2f5',borderBottomWidth:1,borderBottomColor:'#cdf',marginTop:5,padding:5}]}
+          style={[{backgroundColor:'#ffffff',borderBottomWidth:1,borderBottomColor:'#cdf',marginTop:5,padding:5}]}
         >
         <View style={mystyles.balanceRow}>
   
   
 
-            <View style={{flex:2,flexDirection:'row',justifyContent:'center',alignContent:'center',alignItems:'center'}}>
+            <View style={{flex:2,flexDirection:'row',justifyContent:'center',alignContent:'center',alignItems:'center',backgroundColor:'white'}}>
             <Ionicons name='wallet' size={30} color={'#72680b'}/>
              <Text style={[mystyles.balanceLabel,{fontSize:25}]}> {(BalanceData?.income ?? 0) -(BalanceData?.expense ?? 0)}</Text>
             </View> 
 
 
             <View>
-              <Text style={mystyles.balanceLabel}>This Month Expense</Text>
+              <Text style={mystyles.balanceLabel}>This Month</Text>
               
               <Text style={mystyles.balanceAmount}>  {
               ThisMonthExpense && ThisMonthExpense.length > 0
@@ -130,9 +131,9 @@ if (isLoading) return <ActivityIndicator size="large" />;
                    
             </View>
             <View>
-            
-              <Text style={mystyles.balanceLabel}>Last Month</Text>
-                <TouchableOpacity  onPress={()=>router.push('/(group)/lastMOnthExpense')}>
+            <TouchableOpacity  onPress={()=>router.push('/search')}>
+              <Text style={mystyles.balanceLabel}>Last Month <FontAwesome name='search' size={14} color={'#72680b'} style={{marginLeft:5}}/></Text>
+                
                   <Text style={mystyles.balanceAmount}>  {LastMonthExpense && LastMonthExpense.length > 0
       ? (-(LastMonthExpense[0].income ?? 0) + (LastMonthExpense[0].expense ?? 0))
       : 0}</Text>
@@ -144,7 +145,7 @@ if (isLoading) return <ActivityIndicator size="large" />;
 
       
     <View style={mystyles.balanceRow}>
-          { <FlatList
+          { <FlatList style={{backgroundColor:'white'}}
     data={Array.isArray(ThisMonthExpenseCatg) ? ThisMonthExpenseCatg : []} 
     renderItem={({ item }) => {
       // If the item itself is somehow an object containing a transaction structure, skip rendering it to prevent the crash
@@ -154,13 +155,13 @@ if (isLoading) return <ActivityIndicator size="large" />;
 
       const categoryName = typeof item.category === 'object' ? 'Unknown' : (item.category ?? 'N/A');
       const expenseAmount = typeof item.expense === 'object' ? 0 : (item.expense ?? 0);
-
+//console.log('Category:', categoryName, 'Expense:', expenseAmount,today.getDate());
       return (
-        <View>
+        <View style={{ alignItems: 'center', justifyContent: 'center',borderRightWidth:1,borderColor:'#d4d2d2',paddingRight:5 }}>
           <Text style={mystyles.smallLabel}>{categoryName}</Text>
           <Text style={mystyles.smallAmount}>
             {categoryName === 'Regular'
-              ? `${Math.ceil(expenseAmount / now.getDay())}/day `
+              ? `${Math.ceil(expenseAmount / theDyaNum)}/day `
               : `${expenseAmount}`}
           </Text>
         </View>
@@ -185,6 +186,7 @@ if (isLoading) return <ActivityIndicator size="large" />;
           </View>
         </View>
 {<FlatList
+style={{backgroundColor:'white'}}
 data={xpData}
 renderItem={({item})=>(
 <ExpenseItem expData={item} />)}

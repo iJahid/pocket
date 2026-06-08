@@ -8,7 +8,7 @@ import { FlatList, View } from 'react-native';
 const BringList = () => {
    
   //const [orderList,setOrderList]=useState<any []>([])
-const {data: orderList}=  useOrdersList()
+const {data: orderList}=  useOrdersList(false)
     //      setOrderList(data);
  
 

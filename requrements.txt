@@ -56,3 +56,23 @@ BEGIN
    
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION get_monthly_expenses(userID uuid)
+RETURNS TABLE (
+  expense_month TEXT,
+  total_expense NUMERIC
+) 
+LANGUAGE sql
+AS $$
+  SELECT 
+    TO_CHAR(xndate, 'YYYY-MM') AS expense_month,
+    SUM(amount) AS total_expense
+  FROM 
+    transactions
+  where user_id=userid
+  and xn_for='XP'
+  GROUP BY 
+    TO_CHAR(xndate, 'YYYY-MM')
+  ORDER BY 
+    expense_month ASC;
+$$;

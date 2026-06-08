@@ -9,7 +9,7 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import dayjs from 'dayjs'
 import React, { useEffect, useState } from 'react'
-import { ActivityIndicator, Alert, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, FlatList, KeyboardAvoidingView, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import Collapsible from 'react-native-collapsible'
 
 type CatgoryList = {
@@ -36,8 +36,8 @@ const ExpenseForm = ({inputdata,isAdd,onClose}) => {
     const [isCollapsed, setIsCollapsed] = useState(true);
     const [xpData,setXpData]=useState<expDataTypeDB>()
 
-    const { mutate: createTrans,isPending,isSuccess } = useCreateTrans('XP');
-    const { mutate: updateTrans,isPending:isUpdating } = useUpdateTrans('XP');
+    const { mutate: createTrans,error:createError,isPending,isSuccess } = useCreateTrans('XP');
+    const { mutate: updateTrans,error:updateError,isPending:isUpdating } = useUpdateTrans('XP');
 
 const [searchQuery, setSearchQuery] = useState('');
   const [filteredData, setFilteredData] = useState(itemList);
@@ -45,10 +45,9 @@ const [searchQuery, setSearchQuery] = useState('');
      const {data:catgaroy,error:catgError} =await supabase
                                             .from("datalists")
                                             .select('listitem')
-                                            .eq('list_type','CATGORY')
-                                            .or(`list_type.eq.CATGORY,and(list_type.eq.CATGORY,user_id.eq.${profile?.id})`)
+                                           .or(`and(list_type.eq.CATGORY,user_id.is.null),and(list_type.eq.CATGORY,user_id.eq.${profile?.id})`)
                                             .order('listitem',{ascending:true});
-      console.log(catgaroy,catgError);
+    //  console.log(catgaroy,catgError);
      
         if(!catgError)
         {
@@ -58,8 +57,7 @@ const [searchQuery, setSearchQuery] = useState('');
          const {data:itemList,error:ItemListError} =await supabase
                                             .from("datalists")
                                             .select('listitem')
-                                            .eq('list_type','ITEM')
-                                            .or(`list_type.eq.ITEM,and(list_type.eq.ITEM,user_id.eq.${profile?.id})`)
+                                            .or(`and(list_type.eq.ITEM,user_id.is.null),and(list_type.eq.ITEM,user_id.eq.${profile?.id})`)
                                             .order('listitem',{ascending:true});
  
         setItemList(itemList as any);
@@ -104,8 +102,12 @@ const CreateExpenses=async()=>{
                                   
                                               )*/
 
-      const error=  createTrans(xpData);
-       if(!error)
+     createTrans(xpData);
+       if(createError)
+       {
+        Alert.alert('Error', 'Failed to create transaction. Please try again.');
+       }
+       else
        {
         onClose();
        }
@@ -133,8 +135,16 @@ const UpdateExpenses=async(id)=>{
                 notes:xpData?.notes
 
               }})
-                    console.log('Update Result',data)       ;
-              onClose();
+              
+              if(updateError)
+              {
+                Alert.alert('Error', `Failed to update transaction. Please try again.${updateError}`);
+              }
+              else
+              {
+                console.log('Update Result',data)       ;
+                onClose();
+              }
     
 
 }
@@ -316,7 +326,7 @@ if(newItem.trim()==='')
 
     <View style={{ alignItems:'center'}}>
                           <TouchableOpacity style={{ borderRadius:5,flexDirection:'row',
-                            borderWidth:1,backgroundColor:'#e1e9bf',padding:5,paddingLeft:10,width:100 }}
+                           backgroundColor:'#e1e9bf',padding:10,paddingLeft:10,width:100 }}
                             
                             onPress={()=>
                              
@@ -344,7 +354,25 @@ if(newItem.trim()==='')
         presentationStyle="fullScreen" // Crucial for iOS full screen
         onRequestClose={() => setModalVisible(false)} // Handles Android back button
       >
+                 <TouchableOpacity style={mystyles.closeButton} onPress={() => {
+                  
+                  setModalVisible(false)
+                 }
+                  }>
+                                          <Text style={mystyles.closeText}>✕</Text>
+                                        </TouchableOpacity>
         <Text style={{fontSize:25,padding:5,marginTop:10,color:'green'}}>Categories</Text>
+        <View style={{padding:10}}><Text style={{color:'blue',fontStyle:'italic'}}>Not In The List Add New</Text>
+            <View style={{flexDirection:'row',gap:6}}>
+              <KeyboardAvoidingView>
+              <TextInput placeholder='New Category' style={{borderWidth:0.5,borderColor:'#ccdd',width:250,marginLeft:30}}
+                value={newCategory} onChangeText={(value)=>setNewCategory(value)}/>
+              <TouchableOpacity onPress={()=>CreateCatg()}><FontAwesome name='plus-circle' size={35} color={'green'}/></TouchableOpacity>
+            </KeyboardAvoidingView>
+            </View>
+          
+          </View>
+          
         <View style={[styles.modalView,{flex:1}]}>
           <FlatList
           data={category}
@@ -362,15 +390,6 @@ if(newItem.trim()==='')
           
           
           />
-           <View style={{padding:10}}><Text style={{color:'blue',fontStyle:'italic'}}>Not In The List Add New</Text>
-          <View style={{flexDirection:'row',gap:6}}>
-            <TextInput placeholder='New Category' style={{borderWidth:0.5,borderColor:'#ccdd',width:250,marginLeft:30}}
-            value={newCategory} onChangeText={(value)=>setNewCategory(value)}/>
-            <TouchableOpacity onPress={()=>CreateCatg()}><FontAwesome name='plus-circle' size={35} color={'green'}/></TouchableOpacity>
-
-          </View>
-          
-          </View>
           <TouchableOpacity style={styles.button} onPress={() => setModalVisible(false)}>
             <Text style={styles.textStyle}>Close</Text>
           </TouchableOpacity>
@@ -385,9 +404,29 @@ if(newItem.trim()==='')
         presentationStyle="fullScreen" // Crucial for iOS full screen
         onRequestClose={() => setModalVisibleItem(false)} // Handles Android back button
       >
+                 <TouchableOpacity style={mystyles.closeButton} onPress={() => {
+                  
+                  setModalVisibleItem(false)
+                 }
+                  }>
+                                          <Text style={mystyles.closeText}>✕</Text>
+                                        </TouchableOpacity>
         <View style={[styles.modalView,{flex:1}]}>
           
       <Text style={{fontSize:25,padding:5,marginTop:10,color:'green'}}>Items</Text>
+
+      <View style={{padding:10}}><Text style={{color:'blue',fontStyle:'italic'}}>Not In The List Add New</Text>
+      
+          <View style={{flexDirection:'row',gap:6}}>
+            <KeyboardAvoidingView style={{flexDirection:'row',gap:6}}>
+            <TextInput placeholder='New Item' style={{borderWidth:0.5,borderColor:'#ccdd',width:300}}
+            value={newItem} onChangeText={(value)=>setNewItem(value)}/>
+            <TouchableOpacity onPress={()=>CreateItem()}><FontAwesome name='plus-circle' size={35} color={'green'}/></TouchableOpacity>
+            </KeyboardAvoidingView>
+          </View>
+          
+          </View>
+
        <FlatList
   data={itemList}
   renderItem={({ item }) => (
@@ -410,15 +449,7 @@ if(newItem.trim()==='')
   style={{ width: '100%' }} 
 />
 
-          <View style={{padding:10}}><Text style={{color:'blue',fontStyle:'italic'}}>Not In The List Add New</Text>
-          <View style={{flexDirection:'row',gap:6}}>
-            <TextInput placeholder='New Item' style={{borderWidth:0.5,borderColor:'#ccdd',width:300}}
-            value={newItem} onChangeText={(value)=>setNewItem(value)}/>
-            <TouchableOpacity onPress={()=>CreateItem()}><FontAwesome name='plus-circle' size={35} color={'green'}/></TouchableOpacity>
-
-          </View>
           
-          </View>
           <TouchableOpacity style={styles.button} onPress={() => setModalVisibleItem(false)}>
             <Text style={styles.textStyle}>Close</Text>
           </TouchableOpacity>

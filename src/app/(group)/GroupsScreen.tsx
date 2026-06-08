@@ -114,7 +114,7 @@ refetch();
   return(
     <View style={mystyles.content}>
     <Stack.Screen options={{
-      headerLeft:()=>(<TouchableOpacity onPress={()=>router.replace('/')}><FontAwesome name='backward'  /></TouchableOpacity>),
+      
       headerTitle:'Groups',
       headerRight:()=>(<>
       <TouchableOpacity onPress={()=>setModalVisible(true)}

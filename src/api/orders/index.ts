@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useId } from 'react';
 import { Alert } from 'react-native';
 
-export default function useOrdersList() {
+export default function useOrdersList(isArchive=false) {
     const {session}=useAuth();
     const userId=session?.user.id;
       const today = new Date();
@@ -13,12 +13,31 @@ export default function useOrdersList() {
     const isoToday = today.toISOString();
      
   return useQuery({
-    queryKey: ['orders',userId],
+    queryKey: ['orders',userId,isArchive],
     queryFn: async()=>{
         if(!userId){
          return null;
         }
-       
+        if(isArchive){
+
+ const { data,error } = await supabase
+          .from("orders")
+          .select(`
+            *,
+            groups(name),
+            products(name,image),
+            orderby:profiles!order_by(name,email)`
+          ).eq('order_to',userId)
+          .eq('status', 'bought')
+          .order('created_at', { ascending: false });
+
+
+
+          console.log(error);
+        return data;
+        }
+        else{
+          
  const { data,error } = await supabase
           .from("orders")
           .select(`
@@ -34,6 +53,7 @@ export default function useOrdersList() {
 
           console.log(error);
         return data;
+        }
     }
   });
     
@@ -97,7 +117,7 @@ export function useUserGroupInfo() {
 }
 
 
-export function useRequestList() {
+export function useRequestList(isArchive=false) {
     const {session}=useAuth();
     const userId=session?.user.id;
       const today = new Date();
@@ -105,13 +125,30 @@ export function useRequestList() {
     const isoToday = today.toISOString();
      
   return useQuery({
-    queryKey: ['orders',userId],
+    queryKey: ['orders',userId,isArchive],
     queryFn: async()=>{
         if(!userId){
          return null;
         }
-       
+       if(isArchive){
  const { data,error } = await supabase
+          .from("orders")
+          .select(`
+            *,
+            groups(name),
+            products(name,image),
+            orderby:profiles!order_to(name,email)`
+          ).eq('order_by',userId)
+          .eq('status', 'bought')
+           .order('created_at', { ascending: false });
+
+
+
+
+        return data;
+    }
+    else{
+          const { data,error } = await supabase
           .from("orders")
           .select(`
             *,
@@ -121,12 +158,9 @@ export function useRequestList() {
           ).eq('order_by',userId)
           .or(`status.eq.pending,created_at.gte.${isoToday}`)
            .order('created_at', { ascending: false });
-
-
-
-
-        return data;
+           return data;
     }
+  }
   });
     
   
@@ -448,6 +482,8 @@ export const useCreateTrans=(expType:string)=>{
  async onSuccess(){
     // Invalidate and refetch
     //console.log('success creating Transaction');
+    
+    await queryClient.invalidateQueries({ queryKey: ['Transactions',userId,'This'] });
     await queryClient.invalidateQueries({ queryKey: ['Transactions',userId,expType] });
       await queryClient.invalidateQueries({ queryKey: ['userBalance',userId,['cash','-']] });
     await queryClient.invalidateQueries({ queryKey: ['userBalance',userId,['wallet','-']] });
@@ -498,6 +534,7 @@ export const useUpdateTrans = (expType:string) => {
     },
     async onSuccess() {
        console.log('success Updated Transaction');
+        await queryClient.invalidateQueries({ queryKey: ['Transactions',userId,'This'] });
        await queryClient.invalidateQueries({ queryKey: ['Transactions',userId,expType] });
         await queryClient.invalidateQueries({ queryKey: ['userBalance',userId,['cash','-']] });
     await queryClient.invalidateQueries({ queryKey: ['userBalance',userId,['wallet','-']] });
@@ -786,6 +823,48 @@ export  function useSummaryByCatg(fromDate:string,toDate:string,exp_for:string) 
   
 }
 
+export  function useYearlyByCatg(Year:number,exp_for:string) {
+    const {session}=useAuth();
+    const userId=session?.user.id;
+  
+   
+
+// First date of the year: January 1st
+const firstDate = new Date(Year, 0, 1);
+
+// Last date of the year: December 31st
+const lastDate = new Date(Year, 11, 31);
+    
+  return useQuery({
+    queryKey: ['useYearlyByCatg',userId,exp_for],
+    queryFn: async()=>{
+        if(!userId){
+         return null;
+        }
+       
+       
+
+ const { data,error } = await supabase
+           .rpc('get_sumaryfor_by_catg', {
+    exp_for:exp_for, 
+    input_date_from:firstDate, 
+    input_date_to:lastDate, 
+    userid:userId
+  })
+          
+          
+          console.log('Expense Sum catg',data,error)
+
+        if(error)
+        {
+          console.log(error);
+        }
+        return data;
+    }
+  });
+    
+  
+}
 
 
 // 1. Define the interface matching your Postgres TABLE return type

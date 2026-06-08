@@ -2,8 +2,7 @@ import { useTransactionList } from '@/api/orders'
 import ExpenseItem from '@components/expenseItem'
 import { Stack } from 'expo-router'
 import React from 'react'
-import { FlatList } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { FlatList, View } from 'react-native'
 
 const LastMonthExpnese = () => {
 
@@ -11,7 +10,7 @@ const LastMonthExpnese = () => {
 
   return (
     
-    <SafeAreaView>
+    <View style={{flex:1}}>
         <Stack.Screen options={{headerTitle:'Last Month Expenses'}}/>
       <FlatList
 data={xpData}
@@ -24,7 +23,7 @@ renderItem={({item})=>(
   
 
 />
-    </SafeAreaView>
+    </View>
   )
 }
 

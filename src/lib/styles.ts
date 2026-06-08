@@ -264,6 +264,8 @@ txnType:{
     top: 10,
     right: 10,
     padding: 10,
+    elevation: 5,
+    zIndex: 9999, // Ensures the button is above all other content
   },
   closeText: {
     fontSize: 20,
@@ -311,6 +313,8 @@ txnType:{
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 0,
+    backgroundColor:'white',
+
   },
 
   smallLabel: {

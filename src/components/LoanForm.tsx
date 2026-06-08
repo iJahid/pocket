@@ -9,7 +9,7 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import dayjs from 'dayjs'
 import React, { useEffect, useState } from 'react'
-import { ActivityIndicator, Alert, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, FlatList, KeyboardAvoidingView, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 
 type CatgoryList = {
   listitem:string;
@@ -45,8 +45,7 @@ const [searchQuery, setSearchQuery] = useState('');
          const {data:itemList,error:ItemListError} =await supabase
                                             .from("datalists")
                                             .select('listitem')
-                                            .eq('list_type','LON')
-                                            .or(`list_type.eq.LON,and(list_type.eq.LON,user_id.eq.${profile?.id})`)
+                                             .or(`and(list_type.eq.LON,user_id.is.null),and(list_type.eq.LON,user_id.eq.${profile?.id})`)
                                             .order('listitem',{ascending:true});
  
         setItemList(itemList as any);
@@ -107,7 +106,7 @@ const CreateExpenses=async()=>{
 const UpdateExpenses=async(id :string)=>{
  // const isoDate = xpData?.xndate.toISOString();
 
-  console.log("Updatign", xpData)
+ // console.log("Updatign", xpData)
        
           /*  const {data,error}=await supabase
                                     .from('transactions')
@@ -337,9 +336,25 @@ if(newItem.trim()==='')
         presentationStyle="fullScreen" // Crucial for iOS full screen
         onRequestClose={() => setModalVisibleItem(false)} // Handles Android back button
       >
+                 <TouchableOpacity style={mystyles.closeButton} onPress={() => {
+                  
+                  setModalVisibleItem(false)
+                 }
+                  }>
+                                          <Text style={mystyles.closeText}>✕</Text>
+                                        </TouchableOpacity>
         <View style={[styles.modalView,{flex:1}]}>
           
       <Text style={{fontSize:25,padding:5,marginTop:10,color:'green'}}>Person/Bank Names</Text>
+            <View style={{padding:10}}><Text style={{color:'blue',fontStyle:'italic'}}>Not In The List Add New</Text>
+          <KeyboardAvoidingView style={{flexDirection:'row',gap:6}}>
+            <TextInput placeholder='New Item' style={{borderWidth:0.5,borderColor:'#ccdd',width:300}}
+            value={newItem} onChangeText={(value)=>setNewItem(value)}/>
+            <TouchableOpacity onPress={()=>CreateItem()}><FontAwesome name='plus-circle' size={35} color={'green'}/></TouchableOpacity>
+
+          </KeyboardAvoidingView>
+          
+          </View>
        <FlatList
   data={itemList}
   renderItem={({ item }) => (
@@ -362,15 +377,7 @@ if(newItem.trim()==='')
   style={{ width: '100%' }} 
 />
 
-          <View style={{padding:10}}><Text style={{color:'blue',fontStyle:'italic'}}>Not In The List Add New</Text>
-          <View style={{flexDirection:'row',gap:6}}>
-            <TextInput placeholder='New Item' style={{borderWidth:0.5,borderColor:'#ccdd',width:300}}
-            value={newItem} onChangeText={(value)=>setNewItem(value)}/>
-            <TouchableOpacity onPress={()=>CreateItem()}><FontAwesome name='plus-circle' size={35} color={'green'}/></TouchableOpacity>
-
-          </View>
-          
-          </View>
+    
           <TouchableOpacity style={styles.button} onPress={() => setModalVisibleItem(false)}>
             <Text style={styles.textStyle}>Close</Text>
           </TouchableOpacity>

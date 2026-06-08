@@ -10,17 +10,17 @@ import { FlatList, Modal, RefreshControl, Text, TouchableOpacity, View } from 'r
 const xpDataAdd1:expDataTypeDB={
    
     xndate:new Date(),
-category:'Bazar',
-item:'',    
+category:'Salary',
+item:'office',    
 amount:null,
 notes:'',
-xntype:'wallet',
+xntype:'cash',
 user_id:'',
-bankid:0,
-xn_for:'XP',
-xninout:-1,
-bank_name:'',
-
+bankid:null,
+xn_for:'IN',
+xninout:1,
+bank_name:null,
+xn_group:null,
 
 }
 

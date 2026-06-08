@@ -2,7 +2,7 @@
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/providers/AuthProvider';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { router } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   Image,
@@ -53,6 +53,7 @@ export default function Profile() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#f8f8f8' }}>
+      <Stack.Screen options={{ headerTitle: 'Preferences' }} />
       <View style={styles.header}>
         <View style={styles.headerAction}>
           <TouchableOpacity
@@ -67,7 +68,7 @@ export default function Profile() {
         </View>
 
         <Text numberOfLines={1} style={styles.headerTitle}>
-          Settings
+          Profile
         </Text>
 
         <View style={[styles.headerAction, { alignItems: 'flex-end' }]}>

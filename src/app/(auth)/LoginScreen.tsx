@@ -1,16 +1,18 @@
 import { supabase } from '@/lib/supabase';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
+//import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 import * as WebBrowser from "expo-web-browser";
 
+import { mystyles } from '@/lib/styles';
 import { Link, router, Stack } from 'expo-router';
-import React from 'react';
-import { ActivityIndicator, Alert, Keyboard, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import React, { useState } from 'react';
+import { ActivityIndicator, Alert, Button, Image, Keyboard, KeyboardAvoidingView, Modal, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+
 
 
 WebBrowser.maybeCompleteAuthSession();
 
-
+/*
 GoogleSignin.configure({
   //offlineAccess: true,
   //webClientId:"131936964337-tv15jctl4cin8fl9pmi02c5av218gsfe.apps.googleusercontent.com"
@@ -19,18 +21,20 @@ GoogleSignin.configure({
   
 });
 
-
+*/
 const SignIn = () => {
 
 
-
+  const [isModalVisible, setModalVisible] = useState(false);
 
  // const {session}=useAuth();
     const [email, setEmail] = React.useState('')
     const [password, setPassword] = React.useState('')
     const [error1, setError] = React.useState('')
   const [loading, setLoading] = React.useState(false)
- 
+  const [token, setToken] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  
  
   if(loading){
         return (
@@ -40,7 +44,8 @@ const SignIn = () => {
     }
 
 async function signInWithGoogle() {
-  try {
+}
+/*  try {
     await GoogleSignin.hasPlayServices();
     const userInfo = await GoogleSignin.signIn();
     
@@ -60,7 +65,7 @@ async function signInWithGoogle() {
     console.error(error);
   }
 }
-
+*/
 /*
 const signInWithGoogle = async () => {
   try {
@@ -153,16 +158,57 @@ const signInWithGoogle = async () => {
 
     }
   
-/*const resetPass=async()=>{
-  const { data, error } = await supabase.auth.resetPasswordForEmail('jahidtrek@gmail.com', {
-  redirectTo: `${window.location.origin}/reset-password`, // This must match your deep link configuration
+const resetPass=async()=>{
   
-});
-console.log(data,error)
-}*/
-  
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email)
+  console.log(data,error)  
+  if(!error){
+    Alert.alert('Success', 'Password reset email sent')
+    setModalVisible(true);
+  }
+  else
+    {
+      Alert.alert('Error', `Failed to send password reset email ${error.message}`)
+    }
+}
 
-  return (
+
+const handlePasswordReset = async () => {
+   
+   
+    setLoading(true);
+
+    // Step A: Exchange the email token for an active authentication session
+    const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({
+      email: email,
+      token: token,
+      type: 'recovery', // Crucial parameter for password recovery paths
+    });
+
+    if (verifyError) {
+      Alert.alert('Verification Failed', verifyError.message);
+      setLoading(false);
+      return;
+    }
+
+    // Step B: Authenticated session is now active. Apply the new password string.
+    const { data: updateData, error: updateError } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    setLoading(false);
+
+    if (updateError) {
+      Alert.alert('Update Failed', updateError.message);
+    } else {
+      Alert.alert('Success', 'Your password has been successfully updated.');
+      setModalVisible(false);
+      // Route the user back to your sign-in layout page
+    }
+  };
+
+
+  return (<>
      <View style={styles.containerView}>
       <Stack.Screen  options={{title: 'Sign In'}} />
      
@@ -172,7 +218,11 @@ console.log(data,error)
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.loginScreenContainer}>
           <View style={styles.loginFormView}>
-            <Text style={styles.logoText}>Pocket</Text>
+            
+            <Image
+              source={require('assets/images/splash-icon.png')}
+              style={{ width: 300, height: 300, alignSelf: 'center', marginBottom: 20 }}
+            />
             <TextInput
               placeholder="Username"
               value={email}
@@ -188,21 +238,19 @@ console.log(data,error)
             />
             <TouchableOpacity
               style={{justifyContent:'flex-end',width:'100%',alignItems:'flex-end'}}
-              
-
-              
-            ><Text style={{ fontSize: 14,color:'rgb(177, 134, 17)',alignContent:'flex-end'}}>Forgot Password</Text></TouchableOpacity>
+              onPress={resetPass}
+            ><Text style={{ fontSize: 14,color:'rgb(177, 134, 17)',alignContent:'flex-end'}}>Reset Password</Text></TouchableOpacity>
             <TouchableOpacity 
               style={styles.loginButton}
               onPress={() => onSubmit()}
               
             ><Text style={{padding:5,fontSize:18,fontWeight:800}}>Login</Text></TouchableOpacity>
-            <TouchableOpacity
+           {/*} <TouchableOpacity
               style={styles.fbLoginButton}
+              onPress={() => signInWithGoogle()}
               
               
-              
-            ><Text style={{ fontSize: 14}}>Login With Google</Text></TouchableOpacity>
+            ><Text style={{ fontSize: 14}}>Login With Google</Text></TouchableOpacity>*/}
 
             
 
@@ -242,6 +290,17 @@ console.log(data,error)
      
       
     </View>
+      <Modal visible={isModalVisible} transparent={true} animationType="slide">
+                           <View style={mystyles.overlay}>
+                            <View style={[mystyles.modalContent,{overflow:'auto',minHeight:550}]}>
+      <TextInput placeholder="Email" value={email} onChangeText={setEmail} autoCapitalize="none" />
+      <TextInput placeholder="6-Digit Token" value={token} onChangeText={setToken} keyboardType="number-pad" />
+      <TextInput placeholder="New Password" value={newPassword} onChangeText={setNewPassword} secureTextEntry />
+      <Button title={loading ? "Updating..." : "Reset Password"} onPress={handlePasswordReset} disabled={loading} />
+    </View>
+                            </View>
+                            </Modal>
+    </>
   )
 }
 
@@ -250,7 +309,8 @@ export default SignIn
 const styles = StyleSheet.create({
   containerView: {
     flex: 1,
-    alignItems: "center"
+    alignItems: "center",
+    backgroundColor:'white'
   },
   loginScreenContainer: {
     flex: 1,

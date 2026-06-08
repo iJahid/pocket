@@ -4,6 +4,7 @@ import { Link, router, Stack } from 'expo-router'
 import React from 'react'
 import {
   Alert,
+  Image,
   Keyboard,
   KeyboardAvoidingView,
   StyleSheet,
@@ -35,7 +36,8 @@ const SignUp = () => {
         }
         else
         {
-            router.replace('/')
+           Alert.alert("Confirm Your Email","A Confirmation Email has been sent to you account. Please confirm your email by clicking the link we have sent you");
+           router.replace("/(auth)/LoginScreen")
         }
 
         setLoading(false);
@@ -52,7 +54,11 @@ const SignUp = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.loginScreenContainer}>
             <View style={styles.loginFormView}>
-              <Text style={styles.logoText}>Pocket</Text>
+               <Image
+                            source={require('assets/images/splash-icon.png')}
+                            style={{ width: 300, height: 300, alignSelf: 'center', marginBottom: 20 }}
+                          />
+              
               <TextInput
                 placeholder="Email"
                 value={email}
