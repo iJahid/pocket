@@ -98,7 +98,25 @@ const CreateExpenses=async()=>{
                                   
                                               )*/
 
-        createTrans(xpData);
+      
+      
+          if(xpData?.amount<=0)
+                  {
+                  Alert.alert("Amount","Amount Is Not Correct");
+                  return;
+                  }
+        if(!xpData?.category)
+                  {
+                  Alert.alert("Source","Source Is Not Correct");
+                  return;
+                  }
+        if(!xpData?.item)
+                  {
+                  Alert.alert("Details","Details Is Not Correct");
+                  return;
+                  }
+
+       createTrans(xpData);
        if(!creatError)
        {
         onClose();
@@ -295,7 +313,7 @@ const CreateItem=async()=>{
 
     <View style={{ alignItems:'center'}}>
                           <TouchableOpacity style={{ borderRadius:5,flexDirection:'row',
-                            borderWidth:1,backgroundColor:'#e1e9bf',padding:5,paddingLeft:10,width:100 }}
+                            backgroundColor:'#e1e9bf',padding:5,paddingLeft:10,width:100 }}
                             
                             onPress={()=>
                              

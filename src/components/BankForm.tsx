@@ -302,13 +302,13 @@ const CreateExpenses=async()=>{
                              
                           <View style={{ alignItems:'center'}}>
                           <TouchableOpacity style={{ borderRadius:5,flexDirection:'row',
-                            borderWidth:1,backgroundColor:'#e1e9bf',padding:5,paddingLeft:10,width:100 }}
+                            backgroundColor:'#e1e9bf',padding:5,paddingLeft:10,width:100 }}
                             
                             onPress={()=>
                              
                              
                                 
-                              isAdd?CreateExpenses():  UpdateExpenses(xpData?.id)
+                              CreateExpenses()  
                               
                             
                             

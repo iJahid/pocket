@@ -89,7 +89,21 @@ const CreateExpenses=async()=>{
                                   
                                   
                                               )*/
-
+   if(xpData?.amount<=0)
+                  {
+                  Alert.alert("Amount","Amount Is Not Correct");
+                  return;
+                  }
+        if(!xpData?.category)
+                  {
+                  Alert.alert("Give/Take","Give/Take Is Not Correct");
+                  return;
+                  }
+        if(!xpData?.item)
+                  {
+                  Alert.alert("Person","Please Provide Person Name");
+                  return;
+                  }
      const result =   createTrans(xpData);
      console.log('Create Result',isSuccess,createError)       ;
        if(!createError)

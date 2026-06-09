@@ -12,11 +12,11 @@ import { ActivityIndicator, FlatList, Modal, RefreshControl, Text, TouchableOpac
 
 const xpGroupDataAdd:xGroupTypeDBAdd={
    
-      catg_from:'Cash',
-  catg_to:  'Wallet',  
+      catg_from:'cash',
+  catg_to:  'wallet',  
   grp_type:'XCH',
   user_id:'',
-  amount:0,
+  amount:null,
   xndate:new Date(),
 
 

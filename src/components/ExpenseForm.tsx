@@ -10,7 +10,6 @@ import DateTimePicker from '@react-native-community/datetimepicker'
 import dayjs from 'dayjs'
 import React, { useEffect, useState } from 'react'
 import { ActivityIndicator, Alert, FlatList, KeyboardAvoidingView, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import Collapsible from 'react-native-collapsible'
 
 type CatgoryList = {
   listitem:string;
@@ -101,6 +100,22 @@ const CreateExpenses=async()=>{
                                   
                                   
                                               )*/
+
+    if(xpData?.amount<=0)
+            {
+            Alert.alert("Amount","Amount Is Not Correct");
+            return;
+            }
+  if(!xpData?.category)
+            {
+            Alert.alert("Category","Category Is Not Correct");
+            return;
+            }
+  if(!xpData?.item)
+            {
+            Alert.alert("Item","Item Is Not Correct");
+            return;
+            }
 
      createTrans(xpData);
        if(createError)
@@ -307,7 +322,7 @@ if(newItem.trim()==='')
       </View>   
 
 
-    {/*Collapsable Bank Information         */}
+    {/*Collapsable Bank Information         
     <Collapsible collapsed={isCollapsed}>
       <TouchableOpacity style={[mystyles.expInputView,{justifyContent:'flex-end',borderWidth:1,borderColor:'#ccddee',padding:5,gap:6}]}>
 
@@ -321,7 +336,7 @@ if(newItem.trim()==='')
 
       </TouchableOpacity>
     </Collapsible>
-    {/*End of COllapsable bank INformation */}                              
+    End of COllapsable bank INformation */}                              
 
 
     <View style={{ alignItems:'center'}}>

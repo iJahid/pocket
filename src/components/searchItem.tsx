@@ -9,7 +9,7 @@ import { ActivityIndicator, Modal, Text, TouchableOpacity, View } from 'react-na
 import ExpenseForm from './ExpenseForm'
 
 //  Fixed: Explicitly typed the incoming prop object structure
-const ExpenseItem = ({ expData }: { expData: expDataTypeDBUpdate }) => {
+const SearchItem = ({ expData }: { expData: expDataTypeDBUpdate }) => {
 
   const [isModalVisible, setModalVisible] = useState(false);
   const { mutate: deleteTrans, isPending } = useDeleteTransction();
@@ -31,20 +31,20 @@ const ExpenseItem = ({ expData }: { expData: expDataTypeDBUpdate }) => {
         onPress={() => setModalVisible(true)}
       >
         <View style={[mystyles.rowLabel, { flex: 4, flexDirection: 'row', width: '80%', maxWidth: '80%' }]}>
-          <View style={{ width: 25, padding: 2 }}> 
-            {expData.xninout === -1 ? (
-              <Ionicons name='arrow-up-circle' size={20} color={'#e66510'} />
-            ) : (
-              <Ionicons name='arrow-down-circle' size={20} color={'#077a10'} />
-            )}
+          <View style={{ width: 35, padding: 1 }}> 
+            { expData.xn_for==='XP' && <Text style={{color:'red'}}>Exp</Text>}
+            { expData.xn_for==='IN' && <Text style={{color:'green'}}>Inc</Text>}
+            { expData.xn_for==='LON' && <Text style={{color:'rgba(84, 84, 196, 0.87)'}}>Loan</Text>}
+            { expData.xn_for==='XCH' && <FontAwesome name='exchange' size={20} color={'rgba(194, 74, 27, 0.87)'}/> }
+
           </View>
           
-          <View style={{ width: 95, padding: 1 }}> 
-            <Text>{dayjs(expData.xndate).format('ddd DD.MM.YY')}</Text>
+          <View style={{ width: 90, padding: 1 }}> 
+            <Text style={{ color: '#0a0eeb',fontSize:15 }}>{dayjs(expData.xndate).format('DD.MM.YY')}</Text>
           </View>
           
           <View style={{ width: 70, padding: 1 }}> 
-            <Text  style={{ color: '#620ffc' }}>{expData.category}</Text>
+            <Text  style={{ color: '#620ffc',fontSize:15 }}>{expData.category}</Text>
             
           </View>
           
@@ -89,4 +89,4 @@ const ExpenseItem = ({ expData }: { expData: expDataTypeDBUpdate }) => {
   )
 }
 
-export default ExpenseItem
+export default SearchItem

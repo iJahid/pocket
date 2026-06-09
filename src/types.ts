@@ -123,6 +123,6 @@ export type xGroupTypeDBAdd={
   catg_to:  string;  
   grp_type:string;
   user_id:string;
-  amount:number;
+  amount:number | null;
   xndate:Date | string;
 }

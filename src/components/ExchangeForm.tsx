@@ -8,8 +8,7 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import dayjs from 'dayjs'
 import React, { useEffect, useState } from 'react'
-import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import Collapsible from 'react-native-collapsible'
+import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 
 
 
@@ -30,7 +29,7 @@ const ExchangeForm = ({inputdata,onClose}) => {
     const [isCollapsed, setIsCollapsed] = useState(true);
     const [xpData,setXpData]=useState<xGroupTypeDBAdd>()
 
-    const { mutate: createTrans,isPending,isSuccess } = useCreateGroupTrans('XCH');
+    const { mutate: createTrans,error:createErr, isPending,isSuccess } = useCreateGroupTrans('XCH');
     
 
 
@@ -60,7 +59,7 @@ if(isPending)
 const CreateExchange=async()=>{
  // const isoDate = xpData?.xndate.toISOString();
 
-  //console.log( xpData)
+  console.log( xpData)
        
          /*   const {data,error}=await supabase
                                     .from('transactions')
@@ -70,10 +69,31 @@ const CreateExchange=async()=>{
                                   
                                               )*/
 
-      const error=  createTrans(xpData);
-       if(!error)
+      if(!xpData?.catg_from || !xpData?.catg_to)                                       
+       {
+        Alert.alert("Source/Destination","Please Select Source and Destination" );
+        return;
+       }
+
+       if(xpData?.catg_from===xpData?.catg_to)                                       
+       {
+        Alert.alert("Same Type",`You Cannot use Sames Source and Destination ${xpData?.catg_from} to ${xpData?.catg_to}`);
+        return;
+       }
+       if(xpData?.amount<=0)
+       {
+        Alert.alert("Amount","Amount Is Not Correct");
+        return;
+       }
+
+      createTrans(xpData);
+       if(!createErr)
        {
         onClose();
+       }
+       else
+       {
+        Alert.alert('error',createErr)
        }
         
          
@@ -82,28 +102,7 @@ const CreateExchange=async()=>{
 
 }
 
-const UpdateExchange=async(id)=>{
- // const isoDate = xpData?.xndate.toISOString();
 
-  console.log("Updatign", xpData)
-       
-          /*  const {data,error}=await supabase
-                                    .from('transactions')
-                                    .update(xpData).eq('id',xpData?.id)*/
-         const data=     updateTrans({id:id,updatedFields: {
-                xndate: xpData?.xndate,
-                category:xpData?.category,
-                item:xpData?.item,
-                amount:xpData?.amount,
-                xntype:xpData?.xntype,
-                notes:xpData?.notes
-
-              }})
-                    console.log('Update Result',data)       ;
-              onClose();
-    
-
-}
 
 
 
@@ -240,7 +239,7 @@ const UpdateExchange=async(id)=>{
                   onChangeText={(value) => setXpData(prev => ({ ...prev, notes: value }))}></TextInput>
       </View>
 
-    {/*Collapsable Bank Information         */}
+    {/*Collapsable Bank Information        
     <Collapsible collapsed={isCollapsed}>
       <TouchableOpacity style={[mystyles.expInputView,{justifyContent:'flex-end',borderWidth:1,borderColor:'#ccddee',padding:5,gap:6}]}>
 
@@ -254,12 +253,12 @@ const UpdateExchange=async(id)=>{
 
       </TouchableOpacity>
     </Collapsible>
-    {/*End of COllapsable bank INformation */}                              
+   End of COllapsable bank INformation */}                              
 
 
     <View style={{ alignItems:'center'}}>
                           <TouchableOpacity style={{ borderRadius:5,flexDirection:'row',
-                            borderWidth:1,backgroundColor:'#e1e9bf',padding:5,paddingLeft:10,width:100 }}
+                            backgroundColor:'#e1e9bf',padding:5,paddingLeft:10,width:100 }}
                             
                             onPress={()=>CreateExchange()
                               

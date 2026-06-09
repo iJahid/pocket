@@ -1,13 +1,12 @@
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/providers/AuthProvider'
 import { expDataTypeDBUpdate } from '@/types'
-import ExpenseItem from '@components/expenseItem'
+import SearchItem from '@components/searchItem'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import dayjs from 'dayjs'
 import React, { useEffect, useState } from 'react'
 import { FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native'
-
 const transType = [
   { label: 'Expense',value:'XP' },
   { label: 'Income',value:'IN' },
@@ -98,13 +97,8 @@ const endOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1
  
 
   return (
-    
     <View style={{flex:1}}>
-
-
-
-<View style={{flexDirection:'row',backgroundColor:'white'}}>
-    <View style={{padding:10,flex:1}}>
+        <View style={{justifyContent:'center',backgroundColor:'white',alignItems:'center'}}>
       <View style={{flexDirection:'row',paddingLeft:10,marginBottom:5,marginTop:10}}>
         <TouchableOpacity      onPress={() =>{setShowDatePicker(true)} }   >
           <Text style={{fontSize:18,textAlign:'center',color:'#7002ff',fontWeight:700}}> 
@@ -164,61 +158,69 @@ const endOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1
         
         <View style={{flexDirection:'row',marginBottom:5}}>
 
-{
-  transType.map((type)=>(
-    <TouchableOpacity key={type.value} style={{padding:5,backgroundColor:(type.value === seltransType ? '#9cafc094' : '#eee'),borderRadius:5,marginHorizontal:5,width:65,alignItems:'center'}}
-    onPress={() => setTransType(type.value)}
-    >
-      <Text>{type.label}</Text>
-    </TouchableOpacity>
-  ))
-}
-</View>
-<View style={{flexDirection:'row',marginBottom:5}}>
-{transMode.map((mode)=>(
-  <TouchableOpacity key={mode.value} style={{padding:5,backgroundColor:(mode.value === seltransMode ? '#9cafc094' : '#eee') ,borderRadius:5,marginHorizontal:5,width:65,alignItems:'center'}}
-  onPress={() => setTransMode(mode.value)}
-  >
-    <Text >{mode.label}</Text>
-  </TouchableOpacity>
-))
-
-}
-
-
-        </View>  
+            {
+              transType.map((type)=>(
+                <TouchableOpacity key={type.value} style={{padding:5,backgroundColor:(type.value === seltransType ? '#9cafc094' : '#eee'),borderRadius:5,marginHorizontal:5,width:65,alignItems:'center'}}
+                onPress={() => setTransType(type.value)}
+                >
+                  <Text>{type.label}</Text>
+                </TouchableOpacity>
+              ))
+            }
         </View>
-          <View style={{flex:1,justifyContent:'center',alignItems:'flex-end',paddingRight:5}}>
-          <TouchableOpacity style={{ flexDirection:'row',padding:10,backgroundColor:'#7002ff',borderRadius:5}} onPress={()=>handleSearch()}>
-            <FontAwesome name="search" size={20} color="white" style={{marginRight:10}}/>
-            <Text style={{color:'white',fontWeight:700}}>Search</Text>
-          </TouchableOpacity>
-          <View style={{padding:10,justifyContent:'center',alignItems:'flex-end'}}>
-            <Text style={{fontWeight:700}}>Trans: {xpData.length}</Text>
-              <Text style={{fontWeight:700}}> {totalAmount.toFixed(2)}</Text>
-          </View>
-          </View>
+        <View style={{flexDirection:'row',marginBottom:5}}>
+            {transMode.map((mode)=>(
+              <TouchableOpacity key={mode.value} style={{padding:5,backgroundColor:(mode.value === seltransMode ? '#9cafc094' : '#eee') ,borderRadius:5,marginHorizontal:5,width:65,alignItems:'center'}}
+              onPress={() => setTransMode(mode.value)}
+              >
+                <Text >{mode.label}</Text>
+              </TouchableOpacity>
+            ))
 
-          </View>
+            }
+
+
+        </View>
+
         <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center',marginBottom:10,backgroundColor:'white'}}>
           <TextInput placeholder='Category' style={{borderWidth:1,borderColor:'#ccc',borderRadius:5,padding:10,flex:1,marginHorizontal:10}} value={category} onChangeText={setCategory} />
           <TextInput placeholder='Item/Person' style={{borderWidth:1,borderColor:'#ccc',borderRadius:5,padding:10,flex:1,marginHorizontal:10}} value={item} onChangeText={setItem} />
+        </View>
+        <View style={{flexDirection:'row',marginBottom:5,paddingLeft:8,paddingRight:8}}>
+          <TextInput placeholder='Notes' style={{borderWidth:1,borderColor:'#ccc',borderRadius:5,padding:10,flex:1,minHeight:40,maxHeight:40,height:40}} value={notes} onChangeText={setNotes} />
+        </View>
+
+         <View style={{flex:2,  flexDirection:'row',gap:4,justifyContent:'space-around'}}>
+            <View style={{justifyContent:'space-around'}}>
+              <Text style={{fontWeight:700}}>Amount {totalAmount.toFixed(2)}</Text>
           </View>
-          <TextInput placeholder='Notes' style={{borderWidth:1,borderColor:'#ccc',borderRadius:5,padding:10,flex:1,maxHeight:40}} value={notes} onChangeText={setNotes} />
+          <TouchableOpacity 
+          style={{ flexDirection:'row',
+          padding:10,backgroundColor:'#7002ff',borderRadius:5,alignItems:'flex-end'}}
+           onPress={()=>handleSearch()}>
+            <FontAwesome name="search" size={20} color="white" style={{marginRight:10}}/>
+            <Text style={{color:'white',fontWeight:700}}>Serach</Text>
+          </TouchableOpacity>
           
-      <FlatList style={{padding:10,backgroundColor:'white'}}
+          
+          </View>
+          
+          </View>
+    
+
+
+<FlatList
+style={{backgroundColor:'white'}}
 data={xpData}
-extraData={loading}
 renderItem={({item})=>(
-<ExpenseItem expData={item}  />)}
+<SearchItem expData={item} />)}
    contentContainerStyle={{ flexGrow: 1 }}
    
+ 
+        />
 
-      
-  
-
-/>
-    </View>
+</View>
+    
   )
 }
 
